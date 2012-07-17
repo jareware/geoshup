@@ -16,6 +16,7 @@
     </style>
 
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCupNGvEzarlCpQY1YRymZJ_RD8j5xAXiI&sensor=false"></script>
+    <script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
 
 </head>
 <body>
@@ -38,6 +39,7 @@
             };
             var map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
             var points = [];
+            var STAMP_OFFSET = 1341853630;
             var marker = new google.maps.Marker({
                 position: defCoords,
                 map: map,
@@ -54,8 +56,9 @@
                     var pathCoordinates = [];
                     $segment.find('trkpt').each(function () {
                         var $this = $(this);
+                        var timestamp = moment.utc($this.find('time').text()).unix();
                         var cur;
-                        points.push(cur = [ $this.attr('lat'), $this.attr('lon') ]);
+                        points.push(cur = [ $this.attr('lat'), $this.attr('lon'), timestamp - STAMP_OFFSET ]);
                         pathCoordinates.push(new google.maps.LatLng(cur[0], cur[1]));
                     });
                     var trackPath = new google.maps.Polyline({
@@ -66,25 +69,45 @@
                     });
                     trackPath.setMap(map);
                     google.maps.event.addListener(trackPath, 'click', function(event) {
-                        console.log('click', event.latLng);
+                        console.log('click', event);
                     });
+                    console.log('points', points);
                 }
             });
 
             var cursor = 0;
+            var playbackStart = moment().unix() - 60;
 
             window.setInterval(function() {
-                if (cursor >= points.length - 1)
+
+                var now = moment().unix() - playbackStart;
+                var next = points[cursor + 1];
+
+                if (!next)
+                    return;
+
+                console.log(now, '>=?', next[2]);
+
+                if (now < next[2])
                     return;
 
                 cursor++;
                 map.panTo(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
                 marker.setPosition(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
+
+                console.log('@', moment.duration(points[cursor][2], "seconds").humanize());
+
             }, 1000);
 
         });
 
     </script>
+
+    <ul>
+        <li>http://momentjs.com/docs/
+        <li>https://developers.google.com/maps/documentation/javascript/reference
+        <li>https://www.google.com/?q=google%20maps%20click%20polyline%20meta
+    </ul>
 
 </body>
 </html>
