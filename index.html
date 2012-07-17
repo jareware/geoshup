@@ -30,12 +30,19 @@
 
             'use strict';
 
+            var defCoords = new google.maps.LatLng(60.160411, 24.878477);
             var myOptions = {
-                center: new google.maps.LatLng(60.160411, 24.878477),
+                center: defCoords,
                 zoom: 15,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
             var map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
+            var points = [];
+            var marker = new google.maps.Marker({
+                position: defCoords,
+                map: map,
+                title: 'Cursor position'
+            });
 
             $.ajax({
                 type: 'GET',
@@ -47,7 +54,9 @@
                     var pathCoordinates = [];
                     $segment.find('trkpt').each(function () {
                         var $this = $(this);
-                        pathCoordinates.push(new google.maps.LatLng($this.attr('lat'), $this.attr('lon')));
+                        var cur;
+                        points.push(cur = [ $this.attr('lat'), $this.attr('lon') ]);
+                        pathCoordinates.push(new google.maps.LatLng(cur[0], cur[1]));
                     });
                     var trackPath = new google.maps.Polyline({
                         path: pathCoordinates,
@@ -56,8 +65,22 @@
                         strokeWeight: 5
                     });
                     trackPath.setMap(map);
+                    google.maps.event.addListener(trackPath, 'click', function(event) {
+                        console.log('click', event.latLng);
+                    });
                 }
             });
+
+            var cursor = 0;
+
+            window.setInterval(function() {
+                if (cursor >= points.length - 1)
+                    return;
+
+                cursor++;
+                map.panTo(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
+                marker.setPosition(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
+            }, 1000);
 
         });
 
