@@ -2,23 +2,27 @@
 <html lang="en">
 <head>
 
-    <title><!-- TODO --></title>
+    <title>geoshup PoC</title>
 
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width">
 
     <link rel="stylesheet" href="styles.css">
     <style type="text/css">
-        /* TODO */
+        #map_canvas {
+            width: 100%;
+            height: 400px;
+        }
     </style>
+
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCupNGvEzarlCpQY1YRymZJ_RD8j5xAXiI&sensor=false"></script>
 
 </head>
 <body>
 
-    <!-- TODO -->
+    <div id="map_canvas"></div>
 
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-
     <script src="main.js"></script>
     <script>
 
@@ -26,7 +30,12 @@
 
             'use strict';
 
-            // TODO
+            var myOptions = {
+                center:new google.maps.LatLng(60.160411, 24.878477),
+                zoom:8,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            };
+            var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
 
         });
 
