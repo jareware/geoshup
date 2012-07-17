@@ -31,11 +31,33 @@
             'use strict';
 
             var myOptions = {
-                center:new google.maps.LatLng(60.160411, 24.878477),
-                zoom:8,
-                mapTypeId:google.maps.MapTypeId.ROADMAP
+                center: new google.maps.LatLng(60.160411, 24.878477),
+                zoom: 15,
+                mapTypeId: google.maps.MapTypeId.ROADMAP
             };
-            var map = new google.maps.Map(document.getElementById("map_canvas"), myOptions);
+            var map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
+
+            $.ajax({
+                type: 'GET',
+                url: 'track.gpx',
+                dataType: 'xml',
+                success: function(data) {
+                    var $track = $(data);
+                    var $segment = $track.find('trkseg');
+                    var pathCoordinates = [];
+                    $segment.find('trkpt').each(function () {
+                        var $this = $(this);
+                        pathCoordinates.push(new google.maps.LatLng($this.attr('lat'), $this.attr('lon')));
+                    });
+                    var trackPath = new google.maps.Polyline({
+                        path: pathCoordinates,
+                        strokeColor: '#FF0000',
+                        strokeOpacity: 0.7,
+                        strokeWeight: 5
+                    });
+                    trackPath.setMap(map);
+                }
+            });
 
         });
 
