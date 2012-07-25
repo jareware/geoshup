@@ -65,11 +65,14 @@
                         path: pathCoordinates,
                         strokeColor: '#FF0000',
                         strokeOpacity: 0.7,
-                        strokeWeight: 5
+                        strokeWeight: 10
                     });
                     trackPath.setMap(map);
                     google.maps.event.addListener(trackPath, 'click', function(event) {
                         console.log('click', event);
+                        var frame = resolveCoordinatesToFrame(event.latLng);
+                        syncMapTo(frame);
+                        syncVideoTo(frame);
                     });
                     console.log('points', points);
                 }
@@ -142,6 +145,9 @@
                 console.log('[YouTube ERROR]', newState);
             };
             window.navigateMapTo = function(seconds) {
+                if (suppressSyncsFromVideo) {
+                    return;
+                }
                 console.log('navigateMapTo(', seconds, ')');
                 var foundFrame = false;
                 for (var i = 0; i < points.length; i++) {
@@ -155,6 +161,42 @@
                 } else {
                     console.log('Error: Frame not found for seconds: ', seconds);
                 }
+            };
+
+            function resolveCoordinatesToFrame(/* instanceof google.maps.LatLng */ coords) {
+
+                var bestDist = 9001;
+                var bestHit = null;
+                var latLonOrig = coords;
+
+                points.forEach(function(frame, index) {
+                    var latLonCur = new google.maps.LatLng(frame[0], frame[1]);
+                    // https://developers.google.com/maps/documentation/javascript/reference?hl=en-US#spherical
+                    var distance = google.maps.geometry.spherical.computeDistanceBetween(latLonOrig, latLonCur);
+                    if (distance < bestDist) {
+                        bestDist = distance;
+                        bestHit = index;
+                    }
+                });
+
+                console.log('resolveCoordinatesToFrame() => ', bestHit);
+
+                return bestHit;
+
+            }
+
+            var suppressSyncsFromVideo = false;
+
+            function syncVideoTo(frameIndex) {
+
+                ytp.seekTo(points[frameIndex][2] - 45);
+
+                suppressSyncsFromVideo = true;
+
+                window.setTimeout(function() {
+                    suppressSyncsFromVideo = false;
+                }, 2000);
+
             }
 
         });
