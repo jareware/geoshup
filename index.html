@@ -103,6 +103,38 @@
 
     </script>
 
+    <script>
+        var ytp;
+        function onYouTubePlayerReady(playerId) {
+            ytp = document.getElementById("myytplayer");
+            console.log('[YouTube]', 'onYouTubePlayerReady');
+            ytp.addEventListener("onStateChange", "onYTPStateChange");
+            ytp.addEventListener("onError", "onYTPError");
+        }
+        function onYTPStateChange(newState) {
+            // Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
+            // When the SWF is first loaded it will broadcast an unstarted (-1) event. When the video is cued and ready to play it will broadcast a video cued event (5).
+            console.log('[YouTube]', newState);
+        }
+        function onYTPError(newState) {
+            // The 2 error code is broadcast when a request contains an invalid parameter. For example, this error occurs if you specify a video ID that does not have 11 characters, or if the video ID contains invalid characters, such as exclamation points or asterisks.
+            // The 100 error code is broadcast when the video requested is not found. This occurs when a video has been removed (for any reason), or it has been marked as private.
+            // The 101 error code is broadcast when the video requested does not allow playback in the embedded players.
+            // The error code 150 is the same as 101, it's just 101 in disguise!
+            console.log('[YouTube ERROR]', newState);
+        }
+    </script>
+
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js"></script>
+    <div id="ytapiplayer">
+        You need Flash player 8+ and JavaScript enabled to view this video.
+    </div>
+    <script type="text/javascript">
+        var params = { allowScriptAccess: "always" };
+        var atts = { id: "myytplayer" };
+        swfobject.embedSWF("http://www.youtube.com/v/4UynmT8bpx0?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&theme=light", "ytapiplayer", "425", "356", "8", null, null, params, atts);
+    </script>
+
     <ul>
         <li>http://momentjs.com/docs/
         <li>https://developers.google.com/maps/documentation/javascript/reference
