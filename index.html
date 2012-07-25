@@ -75,54 +75,90 @@
                 }
             });
 
-            var cursor = 0;
-            var playbackStart = moment().unix() - 60;
+            var interval;
 
-            window.setInterval(function() {
+            function syncMapTo(startFrame) {
 
-                var now = moment().unix() - playbackStart;
-                var next = points[cursor + 1];
+                var cursor = startFrame;
+                var playbackStart = moment().unix();
 
-                if (!next)
+                if (!points[cursor])
                     return;
 
-                console.log(now, '>=?', next[2]);
-
-                if (now < next[2])
-                    return;
-
-                cursor++;
                 map.panTo(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
                 marker.setPosition(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
 
-                console.log('@', moment.duration(points[cursor][2], "seconds").humanize());
+                if (interval)
+                    window.clearInterval(interval);
 
-            }, 1000);
+                interval = window.setInterval(function() {
+
+                    var playedForSecs = moment().unix() - playbackStart;
+                    var next = points[cursor + 1];
+
+                    if (!next)
+                        return console.log('Error: No next frame');
+
+                    console.log(points[startFrame][2] + playedForSecs, '>=?', next[2]);
+
+                    if (points[startFrame][2] + playedForSecs < next[2])
+                        return;
+
+                    cursor++;
+                    map.panTo(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
+                    marker.setPosition(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
+
+                    console.log('@', moment.duration(points[cursor][2], "seconds").humanize());
+
+                }, 1000);
+
+            }
+
+            syncMapTo(0);
+
+            window.syncMapTo = syncMapTo;
+
+            var ytp;
+            var VIDEO_OFFSET = 40;
+
+            window.onYouTubePlayerReady = function(playerId) {
+                ytp = document.getElementById("myytplayer");
+                console.log('[YouTube]', 'onYouTubePlayerReady');
+                ytp.addEventListener("onStateChange", "onYTPStateChange");
+                ytp.addEventListener("onError", "onYTPError");
+            };
+            window.onYTPStateChange = function(newState) {
+                // Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
+                // When the SWF is first loaded it will broadcast an unstarted (-1) event. When the video is cued and ready to play it will broadcast a video cued event (5).
+                console.log('[YouTube]', newState);
+                if (newState === 1)
+                    navigateMapTo(ytp.getCurrentTime());
+            };
+            window.onYTPError = function(newState) {
+                // The 2 error code is broadcast when a request contains an invalid parameter. For example, this error occurs if you specify a video ID that does not have 11 characters, or if the video ID contains invalid characters, such as exclamation points or asterisks.
+                // The 100 error code is broadcast when the video requested is not found. This occurs when a video has been removed (for any reason), or it has been marked as private.
+                // The 101 error code is broadcast when the video requested does not allow playback in the embedded players.
+                // The error code 150 is the same as 101, it's just 101 in disguise!
+                console.log('[YouTube ERROR]', newState);
+            };
+            window.navigateMapTo = function(seconds) {
+                console.log('navigateMapTo(', seconds, ')');
+                var foundFrame = false;
+                for (var i = 0; i < points.length; i++) {
+                    if (points[i][2] > seconds + VIDEO_OFFSET) {
+                        foundFrame = i;
+                        break;
+                    }
+                }
+                if (foundFrame) {
+                    syncMapTo(foundFrame);
+                } else {
+                    console.log('Error: Frame not found for seconds: ', seconds);
+                }
+            }
 
         });
 
-    </script>
-
-    <script>
-        var ytp;
-        function onYouTubePlayerReady(playerId) {
-            ytp = document.getElementById("myytplayer");
-            console.log('[YouTube]', 'onYouTubePlayerReady');
-            ytp.addEventListener("onStateChange", "onYTPStateChange");
-            ytp.addEventListener("onError", "onYTPError");
-        }
-        function onYTPStateChange(newState) {
-            // Possible values are unstarted (-1), ended (0), playing (1), paused (2), buffering (3), video cued (5).
-            // When the SWF is first loaded it will broadcast an unstarted (-1) event. When the video is cued and ready to play it will broadcast a video cued event (5).
-            console.log('[YouTube]', newState);
-        }
-        function onYTPError(newState) {
-            // The 2 error code is broadcast when a request contains an invalid parameter. For example, this error occurs if you specify a video ID that does not have 11 characters, or if the video ID contains invalid characters, such as exclamation points or asterisks.
-            // The 100 error code is broadcast when the video requested is not found. This occurs when a video has been removed (for any reason), or it has been marked as private.
-            // The 101 error code is broadcast when the video requested does not allow playback in the embedded players.
-            // The error code 150 is the same as 101, it's just 101 in disguise!
-            console.log('[YouTube ERROR]', newState);
-        }
     </script>
 
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js"></script>
