@@ -17,16 +17,22 @@
 
     <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCupNGvEzarlCpQY1YRymZJ_RD8j5xAXiI&sensor=false"></script>
     <script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js"></script>
+
+    <script type="text/javascript">
+        var require = {
+            paths: {
+                'jquery': 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery'
+            }
+        };
+    </script>
+    <script data-main="main" src="lib/require-2.0.4.js"></script>
 
 </head>
 <body>
 
     <div id="map_canvas"></div>
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.js"></script>
-    <script src="main.js"></script>
-
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js"></script>
     <div id="ytapiplayer">
         You need Flash player 8+ and JavaScript enabled to view this video.
     </div>
