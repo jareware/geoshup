@@ -102,7 +102,7 @@
                     if (!next)
                         return console.log('Error: No next frame');
 
-                    console.log(points[startFrame][2] + playedForSecs, '>=?', next[2]);
+//                    console.log(points[startFrame][2] + playedForSecs, '>=?', next[2]);
 
                     if (points[startFrame][2] + playedForSecs < next[2])
                         return;
@@ -111,7 +111,15 @@
                     map.panTo(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
                     marker.setPosition(new google.maps.LatLng(points[cursor][0], points[cursor][1]));
 
-                    console.log('@', moment.duration(points[cursor][2], "seconds").humanize());
+                    if (points[cursor - 1] && points[cursor]) {
+                        var a = new google.maps.LatLng(points[cursor - 1][0], points[cursor - 1][1]);
+                        var b = new google.maps.LatLng(points[cursor][0], points[cursor][1]);
+                        var distance = google.maps.geometry.spherical.computeDistanceBetween(a, b);
+                        var time = points[cursor][2] - points[cursor - 1][2];
+                        var speed = distance / time;
+                    }
+
+                    console.log('@', moment.duration(points[cursor][2], "seconds").humanize(), 'dist:', distance, 'time:', time, 'speed:', Math.round(speed * 10) / 10, 'm/s');
 
                 }, 1000);
 
