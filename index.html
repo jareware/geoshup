@@ -15,18 +15,32 @@
         }
     </style>
 
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key=AIzaSyCupNGvEzarlCpQY1YRymZJ_RD8j5xAXiI&sensor=false"></script>
-    <script src="https://raw.github.com/timrwood/moment/1.6.2/min/moment.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/swfobject/2.1/swfobject.js"></script>
-
     <script type="text/javascript">
         var require = {
             paths: {
-                'jquery': 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery'
+                jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery',
+                moment: 'https://raw.github.com/timrwood/moment/1.6.2/moment'
+            },
+            map: {
+                '*': {
+                    'lib/jquery': 'jquery',
+                    'lib/moment': 'moment'
+                }
+            },
+            shim: {
+                'lib/underscore': {
+                    deps: [],
+                    exports: '_'
+                },
+                'lib/backbone': {
+                    deps: [ 'lib/underscore', 'lib/jquery' ],
+                    exports: 'Backbone'
+                }
             }
         };
     </script>
-    <script data-main="main" src="lib/require-2.0.4.js"></script>
+    <script data-main="main" src="lib/require.js"></script>
 
 </head>
 <body>
@@ -36,11 +50,11 @@
     <div id="ytapiplayer">
         You need Flash player 8+ and JavaScript enabled to view this video.
     </div>
-    <script type="text/javascript">
-        var params = { allowScriptAccess: "always" };
-        var atts = { id: "myytplayer" };
-        swfobject.embedSWF("http://www.youtube.com/v/4UynmT8bpx0?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&theme=light", "ytapiplayer", "425", "356", "8", null, null, params, atts);
-    </script>
+    <!--<script type="text/javascript">-->
+        <!--var params = { allowScriptAccess: "always" };-->
+        <!--var atts = { id: "myytplayer" };-->
+        <!--swfobject.embedSWF("http://www.youtube.com/v/4UynmT8bpx0?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&theme=light", "ytapiplayer", "425", "356", "8", null, null, params, atts);-->
+    <!--</script>-->
 
     <ul>
         <li>http://momentjs.com/docs/
