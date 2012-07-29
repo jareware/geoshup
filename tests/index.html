@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Jasmine Spec Runner</title>
+
+    <!-- Include Jasmine -->
+    <link rel="stylesheet" type="text/css" href="lib/jasmine-1.2.0/jasmine.css">
+    <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine.js"></script>
+    <script type="text/javascript" src="lib/jasmine-1.2.0/jasmine-html.js"></script>
+
+    <!-- Include & configure require.js -->
+    <script type="text/javascript" src="../config/require-config.js"></script>
+    <script type="text/javascript">
+        // Augment the standard configuration with some changed paths:
+        require.paths.models = '../models';
+        require.paths.lib = '../lib';
+    </script>
+
+    <!-- Start test suite -->
+    <script data-main="suite" src="../lib/require.js"></script>
+
+</head>
+<body></body>
+</html>
