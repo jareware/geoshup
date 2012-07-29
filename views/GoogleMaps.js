@@ -7,7 +7,7 @@ define([
 
     "use strict";
 
-    var UPDATE_INTERVAL = 1000;
+    var UPDATE_INTERVAL = 300;
 
     var GPX_LATITUDE  = 0;
     var GPX_LONGITUDE = 1;
@@ -18,69 +18,93 @@ define([
 
         initialize: function() {
 
-            var points = this.model.get('points');
-
-            this.frameCursor = 0;
+            // TODO
 
         },
 
-        sync: function(atGlobalSeconds) {
+        sync: function(atPrivateSeconds) {
 
-            var points = this.model.get('points');
-            var offset = this.model.get('offset');
-            var baseTimestamp = points[0][GPX_TIMESTAMP];
-            var matchingFrame = false;
+            var matchingFrame = this.findFrame(atPrivateSeconds);
 
-            for (var i = 0; i < points.length; i++) {
-                var globalSeconds = points[i][GPX_TIMESTAMP] - baseTimestamp + offset;
-                if (globalSeconds === atGlobalSeconds) {
-                    matchingFrame = i;
-                    break;
-                } else if (globalSeconds > atGlobalSeconds) {
-                    matchingFrame = i - 1;
-                    break;
-                }
-            }
-
-            if (matchingFrame === false)
-                {} // TODO: handle frame not being found
-            else
-                this.frameCursor = matchingFrame;
+            this.currentPrivateSeconds = atPrivateSeconds;
+            this.currentFrame = (matchingFrame === false) ? null : matchingFrame;
 
             return this;
 
         },
 
+        /**
+         * Looks for the frame at the given (private) seconds and returns its index number.  If the second count falls
+         * between frames, the earlier one is returned.  If the optional referenceFrame is provided, starts looking for
+         * the match at that frame, instead of the beginning of the track.
+         *
+         * If the second count is beyond the range of the track in question, returns boolean false.
+         *
+         * @param atPrivateSeconds
+         * @param referenceFrame (optional)
+         */
+        findFrame: function(atPrivateSeconds, referenceFrame) {
+
+            if (atPrivateSeconds < 0)
+                return false;
+
+            var points = this.model.get('points');
+
+            if (points.length === 0)
+                return false;
+
+            var baseTimestamp = points[0][GPX_TIMESTAMP];
+            var startAtFrame = referenceFrame === undefined ? 0 : referenceFrame;
+
+            for (var i = startAtFrame; i < points.length; i++) {
+
+                if (!points[i])
+                    return false;
+
+                var currentTimestamp = points[i][GPX_TIMESTAMP] - baseTimestamp;
+
+                if (currentTimestamp === atPrivateSeconds) // exact match to a frame
+                    return i;
+                else if (currentTimestamp > atPrivateSeconds) // we've gone ahead of the frame already
+                    return (i - 1 >= startAtFrame) ? i - 1 : false; // return that, unless frame range excludes the match
+
+            }
+
+            return false;
+
+        },
+
+        /**
+         * Starts advancing the private seconds counter, and updating the map accordingly.
+         *
+         * TODO: Handle calls without a preceeding sync()
+         *
+         */
         play: function() {
 
             if (this.interval)
                 window.clearInterval(this.interval);
 
-            var playbackStartFrame = this.frameCursor;
-            var playbackStartedAt = moment().unix();
+            var playbackStartedPrivate = this.currentPrivateSeconds;
+            var playbackStartedWall = moment().unix();
 
             this.interval = window.setInterval(_.bind(update, this), UPDATE_INTERVAL);
 
             function update() {
 
-                var points = this.model.get('points');
-                var playbackElapsed = moment().unix() - playbackStartedAt;
-                var cursorTimestamp = points[playbackStartFrame][GPX_TIMESTAMP] + playbackElapsed;
-                var nextFrame = points[this.frameCursor + 1];
+                var playbackElapsed = moment().unix() - playbackStartedWall;
 
-                console.log({
-                    frame: this.frameCursor,
-                    playbackElapsed: playbackElapsed,
-                    nextTimestamp: nextFrame[GPX_TIMESTAMP],
-                    cursorTimestamp: cursorTimestamp
-                });
+                this.currentPrivateSeconds = playbackStartedPrivate + playbackElapsed;
 
-                if (!nextFrame || nextFrame[GPX_TIMESTAMP] > cursorTimestamp)
+                var nextFrame = this.findFrame(this.currentPrivateSeconds, this.currentFrame);
+
+                if (nextFrame === this.currentFrame) // haven't ticked to the next frame yet
                     return;
 
-                this.frameCursor++;
+                this.currentFrame = nextFrame;
 
-                var newPosition = new google.maps.LatLng(points[this.frameCursor][GPX_LATITUDE], points[this.frameCursor][GPX_LONGITUDE]);
+                var points = this.model.get('points');
+                var newPosition = new google.maps.LatLng(points[this.currentFrame][GPX_LATITUDE], points[this.currentFrame][GPX_LONGITUDE]);
 
                 this.map.panTo(newPosition);
                 this.marker.setPosition(newPosition);

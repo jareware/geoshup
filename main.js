@@ -26,7 +26,7 @@ require([
                 window.map = new GoogleMapsView({
                     el: $('#map_canvas')[0],
                     model: track
-                }).render().play();
+                }).sync(60).render().play();
 
             }
         });
