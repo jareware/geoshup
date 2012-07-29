@@ -20,13 +20,32 @@ define([
 
             var points = this.model.get('points');
 
-            this.frameCursor = 1;
+            this.frameCursor = 0;
 
         },
 
-        sync: function(at) {
+        sync: function(atGlobalSeconds) {
 
-            // TODO
+            var points = this.model.get('points');
+            var offset = this.model.get('offset');
+            var baseTimestamp = points[0][GPX_TIMESTAMP];
+            var matchingFrame = false;
+
+            for (var i = 0; i < points.length; i++) {
+                var globalSeconds = points[i][GPX_TIMESTAMP] - baseTimestamp + offset;
+                if (globalSeconds === atGlobalSeconds) {
+                    matchingFrame = i;
+                    break;
+                } else if (globalSeconds > atGlobalSeconds) {
+                    matchingFrame = i - 1;
+                    break;
+                }
+            }
+
+            if (matchingFrame === false)
+                {} // TODO: handle frame not being found
+            else
+                this.frameCursor = matchingFrame;
 
             return this;
 

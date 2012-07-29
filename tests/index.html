@@ -12,8 +12,10 @@
     <script type="text/javascript" src="../config/require-config.js"></script>
     <script type="text/javascript">
         // Augment the standard configuration with some changed paths:
-        require.paths.models = '../models';
         require.paths.lib = '../lib';
+        require.paths.models = '../models';
+        require.paths.views = '../views';
+        require.map['*']['lib/google-maps'] = '../tests/lib/empty'; // let's not load an entire Google Maps object for the tests
     </script>
 
     <!-- Start test suite -->
