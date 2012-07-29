@@ -3,7 +3,7 @@ define([
     'views/GoogleMaps'
 ], function(Backbone, GoogleMapsView) {
 
-    describe('GoogleMapsView', function() {
+    describe('views/GoogleMaps', function() {
 
         var points, track, view;
 

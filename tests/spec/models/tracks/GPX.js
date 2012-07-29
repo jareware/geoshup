@@ -3,7 +3,7 @@ define([
     'text!fixtures/basic-track.gpx'
 ], function(GPXTrack, gpxFixture) {
 
-    describe('GPXTrack', function() {
+    describe('models/tracks/GPX', function() {
 
         it('parses GPX files as expected', function() {
 

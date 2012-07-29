@@ -2,8 +2,10 @@ require([
     'lib/jquery',
     'models/Timeline',
     'models/tracks/GPX',
-    'views/GoogleMaps'
-], function($, Timeline, GPXTrack, GoogleMapsView) {
+    'models/tracks/YouTube',
+    'views/GoogleMaps',
+    'views/YouTube'
+], function($, Timeline, GPXTrack, YouTubeTrack, GoogleMapsView, YouTubeView) {
 
     "use strict";
 
@@ -16,17 +18,28 @@ require([
             success: function(payload) {
 
                 var timeline = new Timeline();
-                var track = new GPXTrack({
+
+                var gpxTrack = new GPXTrack({
                     offset: -60
                 });
+                gpxTrack.parseGPX(payload);
+                timeline.add(gpxTrack);
 
-                track.parseGPX(payload);
-                timeline.add(track);
+                var ytTrack = new YouTubeTrack({
+                    offset: 0
+                });
+                ytTrack.parseVideoID('http://www.youtube.com/watch?v=4UynmT8bpx0');
+                timeline.add(ytTrack);
 
-                window.map = new GoogleMapsView({
-                    el: $('#map_canvas')[0],
-                    model: track
-                }).sync(60).render().play();
+//                window.map = new GoogleMapsView({
+//                    el: $('#map_canvas')[0],
+//                    model: gpxTrack
+//                }).sync(60).render().play();
+
+                window.yt = new YouTubeView({
+                    el: $('#ytapiplayer')[0],
+                    model: ytTrack
+                }).sync(0).render()//.play();
 
             }
         });

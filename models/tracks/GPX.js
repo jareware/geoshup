@@ -1,12 +1,12 @@
 define([
     'lib/jquery',
-    'lib/backbone',
-    'lib/moment'
-], function($, Backbone, moment) {
+    'lib/moment',
+    'models/tracks/Base'
+], function($, moment, TrackBase) {
 
     "use strict";
 
-    return Backbone.Model.extend({
+    return TrackBase.extend({
 
         defaults: {
             offset: 0,

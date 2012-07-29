@@ -1,6 +1,7 @@
 define([
-    'spec/GPXTrackSpec',
-    'spec/GoogleMapsViewSpec'
+    'spec/models/tracks/GPX',
+    'spec/models/tracks/YouTube',
+    'spec/views/GoogleMaps'
 ], function() {
 
     var jasmineEnv = jasmine.getEnv();
