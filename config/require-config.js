@@ -1,7 +1,8 @@
 var require = {
     paths: {
         jquery: 'http://ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery',
-        moment: 'https://raw.github.com/timrwood/moment/1.6.2/moment'
+        moment: 'https://raw.github.com/timrwood/moment/1.6.2/moment',
+        text: 'https://raw.github.com/requirejs/text/master/text'
     },
     map: {
         '*': {

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="Endomondo.com" xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd http://www.garmin.com/xmlschemas/GpxExtensions/v3 http://www.garmin.com/xmlschemas/GpxExtensionsv3.xsd http://www.garmin.com/xmlschemas/TrackPointExtension/v1 http://www.garmin.com/xmlschemas/TrackPointExtensionv1.xsd" xmlns="http://www.topografix.com/GPX/1/1" xmlns:gpxtpx="http://www.garmin.com/xmlschemas/TrackPointExtension/v1" xmlns:gpxx="http://www.garmin.com/xmlschemas/GpxExtensions/v3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <metadata>
+    <author>
+      <name>Jarno Rantanen</name>
+      <email id="jarno" domain="jrw.fi"/>
+    </author>
+    <link href="http://www.endomondo.com">
+      <text>Endomondo</text>
+    </link>
+    <time>2012-07-17T19:04:23Z</time>
+    <bounds minlat="60.160411" minlon="24.878477" maxlat="60.20755" maxlon="24.967223"/>
+  </metadata>
+  <trk>
+    <src>http://www.endomondo.com/</src>
+    <link href="http://www.endomondo.com/workouts/qsXLMsN6CfQ">
+      <text>endomondo</text>
+    </link>
+    <type>CYCLING_SPORT</type>
+    <trkseg>
+      <trkpt lat="60.160411" lon="24.878477">
+        <time>2012-07-09T17:07:10Z</time>
+      </trkpt>
+      <trkpt lat="60.160411" lon="24.878477">
+        <ele>50.2</ele>
+        <time>2012-07-09T17:08:13Z</time>
+      </trkpt>
+      <trkpt lat="60.160516" lon="24.8788">
+        <ele>58.9</ele>
+        <time>2012-07-09T17:08:16Z</time>
+      </trkpt>
+      <trkpt lat="60.160505" lon="24.87916">
+        <ele>60.2</ele>
+        <time>2012-07-09T17:08:20Z</time>
+      </trkpt>
+      <trkpt lat="60.160475" lon="24.879459">
+        <ele>60.5</ele>
+        <time>2012-07-09T17:08:24Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>
