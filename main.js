@@ -1,4 +1,9 @@
-require([ 'lib/jquery', 'modules/data', 'modules/google-maps' ], function($, data, GoogleMapsView) {
+require([
+    'lib/jquery',
+    'models/Timeline',
+    'models/tracks/GPX',
+    'views/GoogleMaps'
+], function($, Timeline, GPXTrack, GoogleMapsView) {
 
     "use strict";
 
@@ -10,11 +15,17 @@ require([ 'lib/jquery', 'modules/data', 'modules/google-maps' ], function($, dat
             dataType: 'xml',
             success: function(payload) {
 
-                data.addGPXTrack(-60, payload);
+                var timeline = new Timeline();
+                var track = new GPXTrack({
+                    offset: -60
+                });
+
+                track.parseGPX(payload);
+                timeline.add(track);
 
                 window.map = new GoogleMapsView({
                     el: $('#map_canvas')[0],
-                    model: data.getTimeline().at(0) // yep, a bit hazardy
+                    model: track
                 }).render().play();
 
             }

@@ -14,7 +14,7 @@ define([
     var GPX_TIMESTAMP = 2;
     var GPX_ELEVATION = 3;
 
-    var GoogleMapsView = Backbone.View.extend({
+    return Backbone.View.extend({
 
         initialize: function() {
 
@@ -27,6 +27,8 @@ define([
         sync: function(at) {
 
             // TODO
+
+            return this;
 
         },
 
@@ -75,24 +77,26 @@ define([
             if (this.interval)
                 window.clearInterval(this.interval);
 
+            return this;
+
         },
 
         render: function() {
 
             var points = this.model.get('points');
             var initCoordinates = new google.maps.LatLng(points[0][GPX_LATITUDE], points[0][GPX_LONGITUDE]);
+            var pathCoordinates = [];
             var mapOptions = {
                 center: initCoordinates,
                 zoom: 15,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
+
             this.map = new google.maps.Map(this.el, mapOptions);
             this.marker = new google.maps.Marker({
                 position: initCoordinates,
                 map: this.map
             });
-
-            var pathCoordinates = [];
 
             _.each(points, function(point) {
                 pathCoordinates.push(new google.maps.LatLng(point[GPX_LATITUDE], point[GPX_LONGITUDE]));
@@ -104,7 +108,9 @@ define([
                 strokeOpacity: 0.7,
                 strokeWeight: 10
             });
+
             trackPath.setMap(this.map);
+
 //            google.maps.event.addListener(trackPath, 'click', function(event) {
 //                console.log('click', event);
 //                var frame = resolveCoordinatesToFrame(event.latLng);
@@ -117,7 +123,5 @@ define([
         }
 
     });
-
-    return GoogleMapsView;
 
 });
