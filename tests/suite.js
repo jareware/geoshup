@@ -1,31 +1,13 @@
-define([
-    'spec/models/tracks/GPX',
-    'spec/models/tracks/YouTube',
-    'spec/views/GoogleMaps'
-], function() {
+define([ 'lib/runner.js' ], function(runner) {
 
-    var jasmineEnv = jasmine.getEnv();
-    jasmineEnv.updateInterval = 1000;
+    define('lib/google-maps', [], {});
+    define('swfobject', [], {});
 
-    var htmlReporter = new jasmine.HtmlReporter();
-
-    jasmineEnv.addReporter(htmlReporter);
-
-    jasmineEnv.specFilter = function (spec) {
-        return htmlReporter.specFilter(spec);
-    };
-
-    var currentWindowOnload = window.onload;
-
-    window.onload = function () {
-        if (currentWindowOnload) {
-            currentWindowOnload();
-        }
-        execJasmine();
-    };
-
-    function execJasmine() {
-        jasmineEnv.execute();
-    }
+    require([
+        'spec/models/tracks/GPX',
+        'spec/models/tracks/YouTube',
+        'spec/views/GoogleMaps',
+        'spec/views/YouTube'
+    ], runner);
 
 });

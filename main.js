@@ -39,7 +39,9 @@ require([
                 window.yt = new YouTubeView({
                     el: $('#ytapiplayer')[0],
                     model: ytTrack
-                }).sync(0).render()//.play();
+                }).render().sync(200, function() {
+//                    window.yt.play();
+                });
 
             }
         });
