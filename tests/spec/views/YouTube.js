@@ -72,24 +72,18 @@ define([
             expect(view.ytp.pauseVideo).toHaveBeenCalled();
             expect(view.ytp.seekTo).not.toHaveBeenCalled();
 
-            var readySpy = jasmine.createSpy('readySpy');
-
-            view.sync(123, readySpy);
+            view.sync(123, function() {});
 
             expect(view.ytp.playVideo).not.toHaveBeenCalled();
             expect(view.ytp.pauseVideo.callCount).toBe(2);
             expect(view.ytp.seekTo).toHaveBeenCalledWith(123, true);
             expect(view.ytp.seekTo.callCount).toBe(1);
 
-//            expect(readySpy.callCount).toBe(1); // TODO
-
         });
 
         it('delays commands to YTP during sync() if YTP is not ready', function() {
 
-            var readySpy = jasmine.createSpy('readySpy');
-
-            view.render().sync(123, readySpy);
+            view.render().sync(123, function() {});
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
@@ -104,8 +98,76 @@ define([
                 expect(view.ytp.pauseVideo.callCount).toBe(2);
                 expect(view.ytp.seekTo).toHaveBeenCalledWith(123, true);
                 expect(view.ytp.seekTo.callCount).toBe(1);
+            });
 
-//                expect(readySpy.callCount).toBe(1); // TODO
+        });
+
+        it('allows subscribing one-off event handlers', function() {
+
+            view.render();
+
+            window.onYouTubePlayerReady('playerID');
+
+            spyOnControls(view.ytp);
+
+            var spyA = jasmine.createSpy('spyA');
+            var spyB = jasmine.createSpy('spyB');
+            var spyC = jasmine.createSpy('spyC');
+
+            view.onNextStateChange(view.STATE.PLAYING,   spyA);
+            view.onNextStateChange(view.STATE.PAUSED,    spyB);
+            view.onNextStateChange(view.STATE.BUFFERING, spyC);
+
+            window.onYTPStateChange(view.STATE.PLAYING);
+
+            expect(spyA.callCount).toBe(1);
+            expect(spyB.callCount).toBe(0);
+            expect(spyC.callCount).toBe(0);
+
+            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PAUSED);
+            window.onYTPStateChange(view.STATE.CUED);
+
+            expect(spyA.callCount).toBe(1);
+            expect(spyB.callCount).toBe(1);
+            expect(spyC.callCount).toBe(0);
+
+        });
+
+        it('allows subscribing multiple handlers to a single state change', function() {
+
+            view.render();
+
+            window.onYouTubePlayerReady('playerID');
+
+            spyOnControls(view.ytp);
+
+            var spyA = jasmine.createSpy('spyA');
+            var spyB = jasmine.createSpy('spyB');
+
+            view.onNextStateChange(view.STATE.PLAYING, spyA);
+            view.onNextStateChange(view.STATE.PLAYING, spyB);
+
+            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING);
+
+            expect(spyA.callCount).toBe(1);
+            expect(spyB.callCount).toBe(1);
+
+        });
+
+        it('calls the ready() function after a successful sync()', function() {
+
+            var readySpy = jasmine.createSpy('readySpy');
+
+            view.render().sync(123, readySpy);
+
+            window.onYouTubePlayerReady('playerID');
+            spyOnControls(view.ytp);
+            window.onYTPStateChange(view.STATE.PLAYING);
+
+            waitsFor(function() {
+                return readySpy.callCount > 0;
             });
 
         });

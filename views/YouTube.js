@@ -23,23 +23,28 @@ define([
             CUED:       5 // When the video is cued and ready to play it will broadcast a video cued event (5)
         },
 
-        sync: function(atPrivateSeconds, ready) {
+        stateChangeListeners: [],
 
-            console.log('YouTube.sync(' + atPrivateSeconds + ')');
+        sync: function(atPrivateSeconds, ready) {
 
             var that = this;
 
-            if (!this.playerStarted) {
-                console.log('Queuing YouTubeView sync()');
-                this.playerStartedCallback = function() {
-                    that.sync(atPrivateSeconds, ready);
-                };
-                return this;
-            }
+            if (this.playerStarted) {
 
-            this.ytp.pauseVideo();
-            this.ytp.seekTo(atPrivateSeconds, true);
-            console.log('seek command given');
+                this.ytp.pauseVideo();
+                this.ytp.seekTo(atPrivateSeconds, true);
+
+                _.defer(ready); // TODO: This should in fact be that.onNextStateChange(that.STATE.CUED) but the CUED event is not firing for some reason :S
+
+            } else {
+
+                that.onNextStateChange(that.STATE.PLAYING, function() {
+                    _.defer(function() { // note: the _.defer() is essential so that.playerStarted = true
+                        that.sync(atPrivateSeconds, ready);
+                    });
+                });
+
+            }
 
             return this;
 
@@ -48,7 +53,6 @@ define([
         render: function() {
 
             var that = this;
-            var firstPlay = true;
 
             this.playerStarted = false;
 
@@ -60,28 +64,36 @@ define([
                 that.ytp.addEventListener('onStateChange', 'onYTPStateChange');
                 that.ytp.addEventListener('onError', 'onYTPError');
 
+                that.onNextStateChange(that.STATE.PLAYING, function() {
+                    that.playerStarted = true; // after autostart has actually started playing the video...
+                    that.ytp.pauseVideo(); // ...pause it, and wait for further commands
+                });
+
             };
 
             window.onYTPStateChange = function(newState) {
 
-                console.log('[YouTube]', newState);
+                console.log('[YouTube]', 'onYTPStateChange(' + newState + ')');
 
-                if (newState === that.STATE.PLAYING && firstPlay) {
-
-                    firstPlay = false;
-                    that.playerStarted = true;
-                    that.ytp.pauseVideo();
-
-                    if (that.playerStartedCallback)
-                        _.defer(that.playerStartedCallback);
-
+                function byMatchingListeners(listener) {
+                    return listener[0] === newState;
                 }
+
+                function triggerListener(listener) {
+                    listener[1]();
+                }
+
+                var matching  = _.filter(that.stateChangeListeners, byMatchingListeners);
+                var remaining = _.reject(that.stateChangeListeners, byMatchingListeners);
+
+                _.each(matching, triggerListener);
+                that.stateChangeListeners = remaining;
 
             };
 
             window.onYTPError = function(newState) {
 
-                console.log('[YouTube ERROR]', newState);
+                console.log('[YouTube]', 'onYTPError(' + newState + ')');
 
             };
 
@@ -97,6 +109,12 @@ define([
             swfobject.embedSWF(embedURL, 'foobarID', width, height, version, null, null, params, atts);
 
             return this;
+
+        },
+
+        onNextStateChange: function(matchState, callback) {
+
+            this.stateChangeListeners.push([ matchState, callback ]);
 
         },
 
