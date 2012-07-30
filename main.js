@@ -31,16 +31,16 @@ require([
                 ytTrack.parseVideoID('http://www.youtube.com/watch?v=4UynmT8bpx0');
                 timeline.add(ytTrack);
 
-//                window.map = new GoogleMapsView({
-//                    el: $('#map_canvas')[0],
-//                    model: gpxTrack
-//                }).sync(60).render().play();
+                window.map = new GoogleMapsView({
+                    el: $('#map_canvas')[0],
+                    model: gpxTrack
+                }).sync(60).render().play();
 
                 window.yt = new YouTubeView({
                     el: $('#ytapiplayer')[0],
                     model: ytTrack
                 }).render().sync(200, function() {
-//                    window.yt.play();
+                    window.yt.play();
                 });
 
             }
