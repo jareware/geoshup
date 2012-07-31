@@ -1,12 +1,15 @@
 define([
     'lib/underscore',
     'lib/backbone',
-    'lib/swfobject'
-], function(_, Backbone, swfobject) {
+    'lib/swfobject',
+    'utils/logger'
+], function(_, Backbone, swfobject, logger) {
 
     "use strict";
 
     // @see https://developers.google.com/youtube/js_api_reference
+
+    var log = logger.create('views/YouTube');
 
     function EMBED_URL(videoID) {
         return 'http://www.youtube.com/v/' + videoID + '?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&theme=light';
@@ -31,12 +34,16 @@ define([
 
             if (this.playerStarted) {
 
+                log('sync(', atPrivateSeconds, ',', ready, ') -> exec');
+
                 this.ytp.pauseVideo();
                 this.ytp.seekTo(atPrivateSeconds, true);
 
                 _.defer(ready); // TODO: This should in fact be that.onNextStateChange(that.STATE.CUED) but the CUED event is not firing for some reason :S
 
             } else {
+
+                log('sync(', atPrivateSeconds, ',', ready, ') -> defer');
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
                     _.defer(function() { // note: the _.defer() is essential so that.playerStarted = true
@@ -58,7 +65,7 @@ define([
 
             window.onYouTubePlayerReady = function(playerID) { // TODO: Use playerID to allow many instances to coexist
 
-                console.log('[YouTube]', 'onYouTubePlayerReady');
+                log('onYouTubePlayerReady()');
 
                 that.ytp = that.$('#myytplayer')[0];
                 that.ytp.addEventListener('onStateChange', 'onYTPStateChange');
@@ -73,7 +80,7 @@ define([
 
             window.onYTPStateChange = function(newState) {
 
-                console.log('[YouTube]', 'onYTPStateChange(' + newState + ')');
+                log('onYTPStateChange(', newState, ')');
 
                 function byMatchingListeners(listener) {
                     return listener[0] === newState;
@@ -86,14 +93,15 @@ define([
                 var matching  = _.filter(that.stateChangeListeners, byMatchingListeners);
                 var remaining = _.reject(that.stateChangeListeners, byMatchingListeners);
 
-                _.each(matching, triggerListener);
                 that.stateChangeListeners = remaining;
+
+                _.each(matching, triggerListener);
 
             };
 
             window.onYTPError = function(newState) {
 
-                console.log('[YouTube]', 'onYTPError(' + newState + ')');
+                log('onYTPError(', newState, ')');
 
             };
 
@@ -120,11 +128,15 @@ define([
 
         play: function() {
 
+            log('play()');
+
             this.ytp.playVideo();
 
         },
 
         pause: function() {
+
+            log('pause()');
 
             this.ytp.pauseVideo();
 

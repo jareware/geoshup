@@ -2,8 +2,9 @@ define([
     'lib/underscore',
     'lib/backbone',
     'lib/moment',
-    'lib/google-maps'
-], function(_, Backbone, moment, google) {
+    'lib/google-maps',
+    'utils/logger'
+], function(_, Backbone, moment, google, logger) {
 
     "use strict";
 
@@ -14,6 +15,8 @@ define([
     var GPX_TIMESTAMP = 2;
     var GPX_ELEVATION = 3;
 
+    var log = logger.create('views/GoogleMaps');
+
     return Backbone.View.extend({
 
         initialize: function() {
@@ -22,7 +25,9 @@ define([
 
         },
 
-        sync: function(atPrivateSeconds) {
+        sync: function(atPrivateSeconds, ready) {
+
+            log('sync(', atPrivateSeconds, ',', ready, ')');
 
             var matchingFrame = this.findFrame(atPrivateSeconds);
 
@@ -82,6 +87,8 @@ define([
          */
         play: function() {
 
+            log('play()');
+
             if (this.interval)
                 window.clearInterval(this.interval);
 
@@ -116,6 +123,8 @@ define([
         },
 
         pause: function() {
+
+            log('pause()');
 
             if (this.interval)
                 window.clearInterval(this.interval);

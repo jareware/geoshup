@@ -1,8 +1,11 @@
 define([
-    'lib/underscore'
-], function(_) {
+    'lib/underscore',
+    'utils/logger'
+], function(_, logger) {
 
     "use strict";
+
+    var log = logger.create('controllers/Orchestrator');
 
     return function(timeline) {
 
@@ -30,6 +33,8 @@ define([
 
         my.syncAtGlobalSeconds = function(globalSeconds) {
 
+            log('syncAtGlobalSeconds(', globalSeconds, ')');
+
             _.each(views, function(view) {
 
                 var privateSeconds = timeline.globalToPrivate(globalSeconds, view.model);
@@ -42,22 +47,32 @@ define([
 
         my.syncAtPrivateSeconds = function(privateSeconds, povTrack) {
 
+            log('syncAtPrivateSeconds(', privateSeconds, ',', povTrack, ')');
+
             var globalSeconds = timeline.privateToGlobal(privateSeconds, povTrack);
 
             my.syncAtGlobalSeconds(globalSeconds);
 
         };
 
-        my.PLAY = function() { // TODO: TEMP
+        my.play = function() {
+
+            log('play()');
+
             _.each(views, function(view) {
                 view.play();
             });
+
         };
 
-        my.PAUSE = function() { // TODO: TEMP
+        my.pause = function() {
+
+            log('pause()');
+
             _.each(views, function(view) {
                 view.pause();
             });
+
         };
 
     };

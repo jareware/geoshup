@@ -9,7 +9,8 @@ define([ 'lib/runner.js' ], function(runner) {
         'spec/models/tracks/YouTube',
         'spec/views/GoogleMaps',
         'spec/views/YouTube',
-        'spec/controllers/Orchestrator'
+        'spec/controllers/Orchestrator',
+        'spec/utils/logger'
     ], runner);
 
 });

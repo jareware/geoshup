@@ -5,10 +5,13 @@ require([
     'models/tracks/GPX',
     'models/tracks/YouTube',
     'views/GoogleMaps',
-    'views/YouTube'
-], function($, Orchestrator, Timeline, GPXTrack, YouTubeTrack, GoogleMapsView, YouTubeView) {
+    'views/YouTube',
+    'utils/logger'
+], function($, Orchestrator, Timeline, GPXTrack, YouTubeTrack, GoogleMapsView, YouTubeView, logger) {
 
     "use strict";
+
+    var log = logger.create('main');
 
     $(function() {
 
@@ -17,6 +20,8 @@ require([
             url: 'track.gpx',
             dataType: 'xml',
             success: function(payload) {
+
+                log('setting up timeline');
 
                 var timeline = new Timeline();
 
@@ -45,8 +50,12 @@ require([
                 var orchestrator = new Orchestrator(timeline);
                 orchestrator.addView(gpxView);
                 orchestrator.addView(ytView);
+                orchestrator.syncAtGlobalSeconds(100, function() {
+                    log('orchestrator sync ready-callback');
+                    orchestrator.play();
+                });
 
-                window.orch = orchestrator;
+                window.orc = orchestrator;
 
             }
         });
