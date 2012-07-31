@@ -73,6 +73,18 @@ define([
 
         });
 
+        it('invokes the ready-callback after sync()', function() {
+
+            var readySpy = jasmine.createSpy('readySpy');
+
+            view.sync(0, readySpy);
+
+            waitsFor(function() {
+                return readySpy.callCount > 0;
+            });
+
+        });
+
     });
 
 });

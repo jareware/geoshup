@@ -34,6 +34,8 @@ define([
             this.currentPrivateSeconds = atPrivateSeconds;
             this.currentFrame = (matchingFrame === false) ? null : matchingFrame;
 
+            _.defer(ready);
+
             return this;
 
         },
