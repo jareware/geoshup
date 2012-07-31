@@ -8,7 +8,8 @@ define([ 'lib/runner.js' ], function(runner) {
         'spec/models/tracks/GPX',
         'spec/models/tracks/YouTube',
         'spec/views/GoogleMaps',
-        'spec/views/YouTube'
+        'spec/views/YouTube',
+        'spec/controllers/Orchestrator'
     ], runner);
 
 });

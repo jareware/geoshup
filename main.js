@@ -1,11 +1,12 @@
 require([
     'lib/jquery',
+    'controllers/Orchestrator',
     'models/Timeline',
     'models/tracks/GPX',
     'models/tracks/YouTube',
     'views/GoogleMaps',
     'views/YouTube'
-], function($, Timeline, GPXTrack, YouTubeTrack, GoogleMapsView, YouTubeView) {
+], function($, Orchestrator, Timeline, GPXTrack, YouTubeTrack, GoogleMapsView, YouTubeView) {
 
     "use strict";
 
@@ -20,28 +21,32 @@ require([
                 var timeline = new Timeline();
 
                 var gpxTrack = new GPXTrack({
-                    offset: -60
+                    offset: -62
                 });
                 gpxTrack.parseGPX(payload);
                 timeline.add(gpxTrack);
 
                 var ytTrack = new YouTubeTrack({
-                    offset: 0
+                    offset: -14
                 });
                 ytTrack.parseVideoID('http://www.youtube.com/watch?v=4UynmT8bpx0');
                 timeline.add(ytTrack);
 
-                window.map = new GoogleMapsView({
+                var gpxView = new GoogleMapsView({
                     el: $('#map_canvas')[0],
                     model: gpxTrack
-                }).sync(60).render().play();
+                }).render();
 
-                window.yt = new YouTubeView({
+                var ytView = new YouTubeView({
                     el: $('#ytapiplayer')[0],
                     model: ytTrack
-                }).render().sync(200, function() {
-                    window.yt.play();
-                });
+                }).render();
+
+                var orchestrator = new Orchestrator(timeline);
+                orchestrator.addView(gpxView);
+                orchestrator.addView(ytView);
+
+                window.orch = orchestrator;
 
             }
         });
