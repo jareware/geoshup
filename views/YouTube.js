@@ -28,13 +28,26 @@ define([
 
         stateChangeListeners: [],
 
+        getReadableState: function(stateCode) {
+
+            var stateKey;
+
+            _.each(this.STATE, function(value, key) {
+                if (value === stateCode)
+                    stateKey = key;
+            });
+
+            return stateKey;
+
+        },
+
         sync: function(atPrivateSeconds, ready) {
 
             var that = this;
 
             if (this.playerStarted) {
 
-                log('sync(', atPrivateSeconds, ',', ready, ') -> exec');
+                log('sync(', atPrivateSeconds, ') -> exec');
 
                 this.ytp.pauseVideo();
                 this.ytp.seekTo(atPrivateSeconds, true);
@@ -43,7 +56,7 @@ define([
 
             } else {
 
-                log('sync(', atPrivateSeconds, ',', ready, ') -> defer');
+                log('sync(', atPrivateSeconds, ') -> defer');
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
                     _.defer(function() { // note: the _.defer() is essential so that.playerStarted = true
@@ -80,7 +93,7 @@ define([
 
             window.onYTPStateChange = function(newState) {
 
-                log('onYTPStateChange(', newState, ')');
+                log('onYTPStateChange(', newState, '==', that.getReadableState(newState), ')');
 
                 function byMatchingListeners(listener) {
                     return listener[0] === newState;

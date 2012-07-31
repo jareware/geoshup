@@ -31,21 +31,23 @@ define([
 
         };
 
-        my.syncAtGlobalSeconds = function(globalSeconds) {
+        my.syncAtGlobalSeconds = function(globalSeconds, ready) {
 
             log('syncAtGlobalSeconds(', globalSeconds, ')');
+
+            ready = _.after(views.length, ready);
 
             _.each(views, function(view) {
 
                 var privateSeconds = timeline.globalToPrivate(globalSeconds, view.model);
 
-                view.sync(privateSeconds, function() {});
+                view.sync(privateSeconds, ready);
 
             });
 
         };
 
-        my.syncAtPrivateSeconds = function(privateSeconds, povTrack) {
+        my.syncAtPrivateSeconds = function(privateSeconds, povTrack, ready) {
 
             log('syncAtPrivateSeconds(', privateSeconds, ',', povTrack, ')');
 
@@ -63,6 +65,8 @@ define([
                 view.play();
             });
 
+            log('play() -> delegated');
+
         };
 
         my.pause = function() {
@@ -72,6 +76,8 @@ define([
             _.each(views, function(view) {
                 view.pause();
             });
+
+            log('pause() -> delegated');
 
         };
 

@@ -27,7 +27,7 @@ define([
 
         sync: function(atPrivateSeconds, ready) {
 
-            log('sync(', atPrivateSeconds, ',', ready, ')');
+            log('sync(', atPrivateSeconds, ')');
 
             var matchingFrame = this.findFrame(atPrivateSeconds);
 
@@ -142,7 +142,7 @@ define([
             var pathCoordinates = [];
             var mapOptions = {
                 center: initCoordinates,
-                zoom: 15,
+                zoom: 17,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
 

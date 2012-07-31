@@ -1,12 +1,22 @@
 define([
+    'lib/underscore',
     'lib/backbone',
     'models/Timeline',
     'controllers/Orchestrator'
-], function(Backbone, Timeline, Orchestrator) {
+], function(_, Backbone, Timeline, Orchestrator) {
 
     "use strict";
 
     describe('controllers/Orchestrator', function() {
+
+        function getViewSpy(offset) {
+            return {
+                model: new Backbone.Model({
+                    offset: offset
+                }),
+                sync: jasmine.createSpy('viewSpy')
+            };
+        }
 
         it('allows adding and removing views, ingoring duplicates', function() {
 
@@ -27,14 +37,35 @@ define([
 
         it('delegates sync commands to contained views', function() {
 
-            function getViewSpy(offset) {
-                return {
-                    model: new Backbone.Model({
-                        offset: offset
-                    }),
-                    sync: jasmine.createSpy('viewSpy')
-                };
-            }
+            var a = getViewSpy(0);
+            var b = getViewSpy(-3);
+            var c = getViewSpy(5);
+            var t = new Timeline([ a.model, b.model, c.model ]);
+            var o = new Orchestrator(t);
+
+            o.addView(a);
+            o.addView(b);
+            o.addView(c);
+
+            o.syncAtGlobalSeconds(3, function() {});
+
+            expect(a.sync).toHaveBeenCalled();
+            expect(b.sync).toHaveBeenCalled();
+            expect(c.sync).toHaveBeenCalled();
+
+            expect(a.sync.mostRecentCall.args[0]).toBe(3);
+            expect(b.sync.mostRecentCall.args[0]).toBe(6);
+            expect(c.sync.mostRecentCall.args[0]).toBe(-2);
+
+            o.syncAtPrivateSeconds(1, c.model, function() {});
+
+            expect(a.sync.mostRecentCall.args[0]).toBe(6);
+            expect(b.sync.mostRecentCall.args[0]).toBe(9);
+            expect(c.sync.mostRecentCall.args[0]).toBe(1);
+
+        });
+
+        it('waits to get a ready() from all views before invoking its own ready()', function() {
 
             var a = getViewSpy(0);
             var b = getViewSpy(-3);
@@ -46,21 +77,27 @@ define([
             o.addView(b);
             o.addView(c);
 
-            o.syncAtGlobalSeconds(3);
+            _.each([ a, b, c ], function(i) {
+                i.sync.andCallFake(function(atGlobalSeconds, ready) {
+                    i.syncReady = ready;
+                });
+            });
 
-            expect(a.sync).toHaveBeenCalled();
-            expect(b.sync).toHaveBeenCalled();
-            expect(c.sync).toHaveBeenCalled();
+            var readySpy = jasmine.createSpy('readySpy');
 
-            expect(a.sync.mostRecentCall.args[0]).toBe(3);
-            expect(b.sync.mostRecentCall.args[0]).toBe(6);
-            expect(c.sync.mostRecentCall.args[0]).toBe(-2);
+            o.syncAtGlobalSeconds(0, readySpy);
 
-            o.syncAtPrivateSeconds(1, c.model);
+            expect(readySpy).not.toHaveBeenCalled();
 
-            expect(a.sync.mostRecentCall.args[0]).toBe(6);
-            expect(b.sync.mostRecentCall.args[0]).toBe(9);
-            expect(c.sync.mostRecentCall.args[0]).toBe(1);
+            a.syncReady();
+            b.syncReady();
+
+            expect(readySpy).not.toHaveBeenCalled();
+
+            b.syncReady();
+
+            expect(readySpy).toHaveBeenCalled();
+            expect(readySpy.callCount).toBe(1);
 
         });
 
