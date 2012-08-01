@@ -9,6 +9,8 @@ define([
 
     // @see https://developers.google.com/youtube/js_api_reference
 
+    var VERBOSE = false;
+
     var log = logger.create('views/YouTube');
 
     function EMBED_URL(videoID) {
@@ -47,16 +49,26 @@ define([
 
             if (this.playerStarted) {
 
-                log('sync(', atPrivateSeconds, ') -> exec');
+                log('sync(', atPrivateSeconds, ')' + (VERBOSE ? ' -> exec' : ''));
 
-                this.ytp.pauseVideo();
+                this.ytp.playVideo(); // TODO: We should in fact use that.onNextStateChange(that.STATE.CUED) but the CUED event is not firing for some reason, so we first tell to seek and then wait for the PLAYING state
                 this.ytp.seekTo(atPrivateSeconds, true);
 
-                _.defer(ready); // TODO: This should in fact be that.onNextStateChange(that.STATE.CUED) but the CUED event is not firing for some reason :S
+                if (VERBOSE) log('Playing and seeking YTP, waiting for next PLAY state...');
+
+                this.onNextStateChange(this.STATE.PLAYING, function() {
+
+                    if (VERBOSE) log('YTP in PLAY state -> pause until told to play() again');
+
+                    that.ytp.pauseVideo();
+
+                    _.defer(ready);
+
+                });
 
             } else {
 
-                log('sync(', atPrivateSeconds, ') -> defer');
+                if (VERBOSE) log('sync(', atPrivateSeconds, ') -> defer because YTP not ready');
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
                     _.defer(function() { // note: the _.defer() is essential so that.playerStarted = true
@@ -78,22 +90,26 @@ define([
 
             window.onYouTubePlayerReady = function(playerID) { // TODO: Use playerID to allow many instances to coexist
 
-                log('onYouTubePlayerReady()');
+                if (VERBOSE) log('onYouTubePlayerReady()');
 
                 that.ytp = that.$('#myytplayer')[0];
                 that.ytp.addEventListener('onStateChange', 'onYTPStateChange');
                 that.ytp.addEventListener('onError', 'onYTPError');
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
+
                     that.playerStarted = true; // after autostart has actually started playing the video...
                     that.ytp.pauseVideo(); // ...pause it, and wait for further commands
+
+                    if (VERBOSE) log('YTP is now ready and paused');
+
                 });
 
             };
 
             window.onYTPStateChange = function(newState) {
 
-                log('onYTPStateChange(', newState, '==', that.getReadableState(newState), ')');
+                if (VERBOSE) log('onYTPStateChange(', newState, '==', that.getReadableState(newState), ')');
 
                 function byMatchingListeners(listener) {
                     return listener[0] === newState;

@@ -35,14 +35,14 @@ define([
 
             log('syncAtGlobalSeconds(', globalSeconds, ')');
 
-            ready = _.after(views.length, ready);
+            var everyoneReady = _.after(views.length, function() {
+                log('syncAtGlobalSeconds(', globalSeconds, ') -> everyone ready');
+                ready();
+            });
 
             _.each(views, function(view) {
-
                 var privateSeconds = timeline.globalToPrivate(globalSeconds, view.model);
-
-                view.sync(privateSeconds, ready);
-
+                view.sync(privateSeconds, everyoneReady);
             });
 
         };
