@@ -44,7 +44,9 @@ require([
 
                 var ytView = new YouTubeView({
                     el: $('#ytapiplayer')[0],
-                    model: ytTrack
+                    model: ytTrack,
+                    width: 500,
+                    height: 356
                 }).render();
 
                 var orchestrator = new Orchestrator(timeline);

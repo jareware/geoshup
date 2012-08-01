@@ -30,6 +30,20 @@ define([
 
         stateChangeListeners: [],
 
+        width: 425,
+
+        height: 356,
+
+        initialize: function(options) {
+
+            if (options.width)
+                this.width = options.width;
+
+            if (options.height)
+                this.height = options.height;
+
+        },
+
         getReadableState: function(stateCode) {
 
             var stateKey;
@@ -137,8 +151,8 @@ define([
             var params = { allowScriptAccess: 'always' };
             var atts = { id: 'myytplayer' };
             var embedURL = EMBED_URL(this.model.get('videoID'));
-            var width = '425';
-            var height = '356';
+            var width = this.width + '';
+            var height = this.height + '';
             var version = '8';
 
             this.$el.html('<div id="foobarID" />');
