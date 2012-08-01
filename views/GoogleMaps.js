@@ -31,6 +31,7 @@ define([
 
             var matchingFrame = this.findFrame(atPrivateSeconds);
 
+            this.internalPause();
             this.currentPrivateSeconds = atPrivateSeconds;
             this.currentFrame = (matchingFrame === false) ? null : matchingFrame;
 
@@ -128,10 +129,20 @@ define([
 
             log('pause()');
 
-            if (this.interval)
-                window.clearInterval(this.interval);
+            this.internalPause();
 
             return this;
+
+        },
+
+        internalPause: function() {
+
+            if (!this.interval)
+                return;
+
+            window.clearInterval(this.interval);
+
+            this.interval = undefined;
 
         },
 
