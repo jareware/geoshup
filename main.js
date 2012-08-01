@@ -26,7 +26,7 @@ require([
                 var timeline = new Timeline();
 
                 var gpxTrack = new GPXTrack({
-                    offset: -62
+                    offset: -59
                 });
                 gpxTrack.parseGPX(payload);
                 timeline.add(gpxTrack);
