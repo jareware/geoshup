@@ -19,12 +19,6 @@ define([
 
     return Backbone.View.extend({
 
-        initialize: function() {
-
-            // TODO
-
-        },
-
         sync: function(atPrivateSeconds, ready) {
 
             log('sync(', atPrivateSeconds, ')');
@@ -85,8 +79,6 @@ define([
         /**
          * Starts advancing the private seconds counter, and updating the map accordingly.
          *
-         * TODO: Handle calls without a preceeding sync()
-         *
          */
         play: function() {
 
@@ -107,6 +99,9 @@ define([
                 this.currentPrivateSeconds = playbackStartedPrivate + playbackElapsed;
 
                 var nextFrame = this.findFrame(this.currentPrivateSeconds, this.currentFrame);
+
+                if (nextFrame === false)
+                    { debugger; } // TODO: Add error handling
 
                 if (nextFrame === this.currentFrame) // haven't ticked to the next frame yet
                     return;
