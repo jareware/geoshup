@@ -143,8 +143,8 @@ define([
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
 
+                    that.expectedEvents++; // for the upcoming pauseVideo()
                     that.playerStarted = true; // after autostart has actually started playing the video...
-                    that.expectedEvents++;
                     that.ytp.mute();
                     that.ytp.pauseVideo(); // ...pause it, and wait for further commands
 
@@ -211,6 +211,11 @@ define([
         onUserEvent: function(newState) {
 
             if (VERBOSE) log('onUserEvent(', newState, '==', this.getReadableState(newState), ')');
+
+            if (newState === this.STATE.PLAYING)
+                this.orchestrator.play();
+            else if (newState === this.STATE.PAUSED)
+                this.orchestrator.pause();
 
         },
 

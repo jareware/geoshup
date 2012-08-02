@@ -15,6 +15,9 @@ define([
                     videoID: '12345'
                 })
             });
+            view.orchestrator = {
+                play: jasmine.createSpy('orchestratorPlaySpy')
+            };
 
             swfobject.embedSWF = function() {
                 view.$el.html('<div id="myytplayer" />');
@@ -190,6 +193,57 @@ define([
             waitsFor(function() {
                 return readySpy.callCount > 0;
             });
+
+        });
+
+        // TODO: Enable below tests; likely culprit for failing to coexist: that.ytp = that.$('#myytplayer')[0];
+        xit('triggers play() and pause() requests on the Orchestrator', function() {
+
+            view.render();
+
+            window.onYouTubePlayerReady('playerID');
+            spyOnControls(view.ytp);
+
+            view.ytp.playVideo.andCallFake(function() {
+                window.onYTPStateChange(view.STATE.PLAYING);
+            });
+            view.ytp.pauseVideo.andCallFake(function() {
+                window.onYTPStateChange(view.STATE.PAUSED);
+            });
+
+            window.onYTPStateChange(view.STATE.UNSTARTED);
+            window.onYTPStateChange(view.STATE.PLAYING); // simulating player-generated startup events
+
+            window.onYTPStateChange(view.STATE.PLAYING); // simulate a user-generated event
+
+            expect(view.orchestrator.play).toHaveBeenCalled();
+
+        });
+
+        it('triggers play() and pause() requests on the Orchestrator after a sync', function() {
+
+            view.render();
+
+            window.onYouTubePlayerReady('playerID');
+            spyOnControls(view.ytp);
+
+            view.ytp.playVideo.andCallFake(function() {
+                window.onYTPStateChange(view.STATE.PLAYING);
+            });
+            view.ytp.pauseVideo.andCallFake(function() {
+                window.onYTPStateChange(view.STATE.PAUSED);
+            });
+
+            window.onYTPStateChange(view.STATE.UNSTARTED);
+            window.onYTPStateChange(view.STATE.PLAYING); // simulating player-generated startup events
+
+            expect(view.playerStarted).toBe(true); // this is just an assertion; otherwise the rest of the test won't make sense
+
+            view.sync(123, function() {});
+            window.onYTPStateChange(view.STATE.PLAYING); // simulate the YTP finishing its seekTo()
+            window.onYTPStateChange(view.STATE.PLAYING); // simulate a user-generated event
+
+            expect(view.orchestrator.play).toHaveBeenCalled();
 
         });
 
