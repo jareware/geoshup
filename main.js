@@ -26,13 +26,13 @@ require([
                 var timeline = new Timeline();
 
                 var gpxTrack = new GPXTrack({
-                    offset: -59
+                    offset: -59 //+ 13
                 });
                 gpxTrack.parseGPX(payload);
                 timeline.add(gpxTrack);
 
                 var ytTrack = new YouTubeTrack({
-                    offset: -14
+                    offset: -14 //+ 13
                 });
                 ytTrack.parseVideoID('http://www.youtube.com/watch?v=4UynmT8bpx0');
                 timeline.add(ytTrack);
@@ -154,28 +154,6 @@ require([
 //                console.log('Error: Frame not found for seconds: ', seconds);
 //            }
 //        };
-//
-//        function resolveCoordinatesToFrame(/* instanceof google.maps.LatLng */ coords) {
-//
-//            var bestDist = 9001;
-//            var bestHit = null;
-//            var latLonOrig = coords;
-//
-//            points.forEach(function(frame, index) {
-//                var latLonCur = new google.maps.LatLng(frame[0], frame[1]);
-//                // https://developers.google.com/maps/documentation/javascript/reference?hl=en-US#spherical
-//                var distance = google.maps.geometry.spherical.computeDistanceBetween(latLonOrig, latLonCur);
-//                if (distance < bestDist) {
-//                    bestDist = distance;
-//                    bestHit = index;
-//                }
-//            });
-//
-//            console.log('resolveCoordinatesToFrame() => ', bestHit);
-//
-//            return bestHit;
-//
-//        }
 //
 //        var suppressSyncsFromVideo = false;
 //

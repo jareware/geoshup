@@ -29,8 +29,8 @@ define([
                 return views.length;
 
             view.orchestrator = {
-                sync: function(atPrivateSeconds) {
-//                    my.syncAtPrivateSeconds(...) // TODO
+                sync: function(atPrivateSeconds, ready) {
+                    my.syncAtPrivateSeconds(atPrivateSeconds, ready, view, view.model);
                 },
                 play: function() {
                     my.play(view);
@@ -66,29 +66,53 @@ define([
 
         };
 
-        my.syncAtGlobalSeconds = function(globalSeconds, ready) { // TODO: These could actually be hidden from the public interface of the Orchestrator
+        /**
+         * Delegates a sync() call to all managed views, translating the given global seconds to the private seconds
+         * understood by each specific view.  This is done using its associated Track object.
+         *
+         * All views should leave themselves into a pause()d state after a sync().  Once all views have reported back as
+         * being done with synchronization, the ready() callback is invoked.
+         *
+         * @param globalSeconds     Global second count to sync to
+         * @param ready             Callback to invoke when ready
+         * @param ignoreView        (optional) View that should NOT be called with a sync() command
+         */
+        my.syncAtGlobalSeconds = function(globalSeconds, ready, ignoreView) { // TODO: These could actually be hidden from the public interface of the Orchestrator
 
             log('syncAtGlobalSeconds(', globalSeconds, ')');
 
-            var everyoneReady = _.after(views.length, function() {
+            var notifiedViewCount = ignoreView ? views.length - 1 : views.length;
+            var everyoneReady = _.after(notifiedViewCount, function() {
                 log('syncAtGlobalSeconds(', globalSeconds, ') -> everyone ready');
                 ready();
             });
 
-            _.each(views, function(view) {
-                var privateSeconds = timeline.globalToPrivate(globalSeconds, view.model);
+            _.chain(views).without(ignoreView).each(function(view) {
+                var povTrack = view.model;
+                var privateSeconds = timeline.globalToPrivate(globalSeconds, povTrack);
                 view.sync(privateSeconds, everyoneReady);
             });
 
         };
 
-        my.syncAtPrivateSeconds = function(privateSeconds, povTrack, ready) { // TODO: These could actually be hidden from the public interface of the Orchestrator
+        /**
+         * Delegates a sync() call to all managed views, translating the given private seconds (relative to the given
+         * point-of-view Track's timeline) to the private seconds of each specific view.
+         *
+         * @see syncAtGlobalSeconds()
+         *
+         * @param privateSeconds    Private second count relative to the povTrack to sync to
+         * @param ready             Callback to invoke when ready
+         * @param ignoreView        (optional) View that should NOT be called with a sync() command
+         * @param povTrack          Track relative to which the second count is given
+         */
+        my.syncAtPrivateSeconds = function(privateSeconds, ready, ignoreView, povTrack) { // TODO: These could actually be hidden from the public interface of the Orchestrator
 
             log('syncAtPrivateSeconds(', privateSeconds, ',', povTrack, ')');
 
             var globalSeconds = timeline.privateToGlobal(privateSeconds, povTrack);
 
-            my.syncAtGlobalSeconds(globalSeconds);
+            my.syncAtGlobalSeconds(globalSeconds, ready, ignoreView);
 
         };
 

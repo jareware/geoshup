@@ -54,7 +54,7 @@ define([
             o.addView(b);
             o.addView(c);
 
-            o.syncAtGlobalSeconds(3, function() {});
+            o.syncAtGlobalSeconds(3, function() {}, undefined);
 
             expect(a.sync).toHaveBeenCalled();
             expect(b.sync).toHaveBeenCalled();
@@ -64,11 +64,31 @@ define([
             expect(b.sync.mostRecentCall.args[0]).toBe(6);
             expect(c.sync.mostRecentCall.args[0]).toBe(-2);
 
-            o.syncAtPrivateSeconds(1, c.model, function() {});
+            o.syncAtPrivateSeconds(1, function() {}, undefined, c.model);
 
             expect(a.sync.mostRecentCall.args[0]).toBe(6);
             expect(b.sync.mostRecentCall.args[0]).toBe(9);
             expect(c.sync.mostRecentCall.args[0]).toBe(1);
+
+        });
+
+        it('allows ignoring a specific view', function() {
+
+            var a = getViewSpy(0);
+            var b = getViewSpy(-3);
+            var c = getViewSpy(5);
+            var t = new Timeline([ a.model, b.model, c.model ]);
+            var o = new Orchestrator(t);
+
+            o.addView(a);
+            o.addView(b);
+            o.addView(c);
+
+            o.syncAtGlobalSeconds(3, function() {}, b);
+
+            expect(a.sync).toHaveBeenCalled();
+            expect(b.sync).not.toHaveBeenCalled();
+            expect(c.sync).toHaveBeenCalled();
 
         });
 
@@ -101,12 +121,21 @@ define([
 
             expect(readySpy).not.toHaveBeenCalled();
 
-            b.syncReady();
+            c.syncReady();
 
             expect(readySpy).toHaveBeenCalled();
             expect(readySpy.callCount).toBe(1);
 
+            o.syncAtGlobalSeconds(0, readySpy, b); // test that it's enough that the non-ignored views reported back
+
+            a.syncReady();
+            c.syncReady();
+
+            expect(readySpy.callCount).toBe(2);
+
         });
+
+        // TODO: Test that one view invoking its ready() multiple times after a sync() won't cut it
 
         it('delegates play/pause commands to managed views', function() {
 

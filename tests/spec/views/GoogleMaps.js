@@ -1,7 +1,8 @@
 define([
     'lib/backbone',
+    'lib/google-maps',
     'views/GoogleMaps'
-], function(Backbone, GoogleMapsView) {
+], function(Backbone, google, GoogleMapsView) {
 
     describe('views/GoogleMaps', function() {
 
@@ -9,11 +10,11 @@ define([
 
         beforeEach(function() {
             points = [
-                [ 60.160411, 24.878477, 100, 50 ],
-                [ 60.160411, 24.878477, 102, 50 ],
-                [ 60.160411, 24.878477, 103, 50 ],
-                [ 60.160411, 24.878477, 107, 50 ],
-                [ 60.160411, 24.878477, 108, 50 ]
+                [ 60.160498, 24.88216,  100, 50 ],
+                [ 60.160521, 24.882495, 102, 50 ],
+                [ 60.160524, 24.883035, 103, 50 ],
+                [ 60.160582, 24.883386, 107, 50 ],
+                [ 60.16063,  24.883597, 108, 50 ]
             ];
             track = new Backbone.Model({
                 points: points
@@ -82,6 +83,14 @@ define([
             waitsFor(function() {
                 return readySpy.callCount > 0;
             });
+
+        });
+
+        xit('finds frames by their coordinates', function() { // TODO: See if this could be made work without loading the Google Maps API in its massive entirety
+
+            var lookForCoords = new google.maps.LatLng(60.160523, 24.883034); // original: [ 60.160524, 24.883035, 103, 50 ],
+
+            expect(view.findFrameByCoordinates(lookForCoords)).toBe(3);
 
         });
 

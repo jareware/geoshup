@@ -8,6 +8,7 @@ define([
 
     "use strict";
 
+    var VERBOSE = false;
     var UPDATE_INTERVAL = 300;
 
     var GPX_LATITUDE  = 0;
@@ -25,15 +26,34 @@ define([
 
             log('sync(', atPrivateSeconds, ')');
 
-            var matchingFrame = this.findFrameBySeconds(atPrivateSeconds);
-
-            this.internalPause();
-            this.currentPrivateSeconds = atPrivateSeconds;
-            this.currentFrame = (matchingFrame === false) ? null : matchingFrame;
+            this.syncInternal(this.findFrameBySeconds(atPrivateSeconds));
 
             _.defer(ready);
 
             return this;
+
+        },
+
+        syncInternal: function(atFrame) {
+
+            if (VERBOSE) log('syncInternal(', atFrame, ')');
+
+            var points = this.model.get('points');
+            var baseTimestamp = points[0][GPX_TIMESTAMP];
+
+            this.internalPause();
+
+            if (atFrame === false) {
+
+                this.currentPrivateSeconds = null;
+                this.currentFrame = null;
+
+            } else {
+
+                this.currentPrivateSeconds = points[atFrame][GPX_TIMESTAMP] - baseTimestamp;
+                this.currentFrame = atFrame;
+
+            }
 
         },
 
@@ -75,6 +95,34 @@ define([
             }
 
             return false;
+
+        },
+
+        /**
+         * Looks for the frame that's closest to the given coordinates, returning its index.
+         *
+         * @see https://developers.google.com/maps/documentation/javascript/reference?hl=en-US#spherical
+         *
+         * @param fromCoords instanceof google.maps.LatLng
+         */
+        findFrameByCoordinates: function(fromCoords) {
+
+            var points = this.model.get('points');
+            var bestDist = 9000001;
+            var bestHit = null;
+
+            points.forEach(function(frame, index) {
+                var toCoords = new google.maps.LatLng(frame[0], frame[1]);
+                var distance = google.maps.geometry.spherical.computeDistanceBetween(fromCoords, toCoords);
+                if (distance < bestDist) {
+                    bestDist = distance;
+                    bestHit = index;
+                }
+            });
+
+            if (VERBOSE) log('findFrameByCoordinates() => frame #', bestHit, '@', bestDist, 'meters');
+
+            return bestHit;
 
         },
 
@@ -145,6 +193,7 @@ define([
 
         render: function() {
 
+            var that = this;
             var points = this.model.get('points');
             var initCoordinates = new google.maps.LatLng(points[0][GPX_LATITUDE], points[0][GPX_LONGITUDE]);
             var pathCoordinates = [];
@@ -173,12 +222,20 @@ define([
 
             trackPath.setMap(this.map);
 
-//            google.maps.event.addListener(trackPath, 'click', function(event) {
-//                console.log('click', event);
-//                var frame = resolveCoordinatesToFrame(event.latLng);
-//                syncMapTo(frame);
-//                syncVideoTo(frame);
-//            });
+            google.maps.event.addListener(trackPath, 'click', function(event) {
+
+                if (VERBOSE) log('google.maps.event("click",', event.latLng, ')');
+
+                var frame = that.findFrameByCoordinates(event.latLng);
+
+                that.syncInternal(frame);
+                that.orchestrator.sync(that.currentPrivateSeconds, function() {
+                    // TODO: Make this dependent on the original play/pause state of this view:
+                    that.orchestrator.play();
+                    that.play();
+                });
+
+            });
 
             return this;
 
