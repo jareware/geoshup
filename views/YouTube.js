@@ -10,11 +10,35 @@ define([
     // @see https://developers.google.com/youtube/js_api_reference
 
     var VERBOSE = false;
+    var YTP_PARAMS = {
+        enablejsapi: 1,
+        playerapiid: 'ytplayer',
+        version: 3,
+        autoplay: 1,
+        modestbranding: 1,
+        rel: 0,
+        showinfo: 0,
+        iv_load_policy: 3,
+        theme: 'light',
+        controls: 0
+    };
 
     var log = logger.create('views/YouTube');
 
-    function EMBED_URL(videoID) {
-        return 'http://www.youtube.com/v/' + videoID + '?enablejsapi=1&playerapiid=ytplayer&version=3&autoplay=1&modestbranding=1&rel=0&showinfo=0&iv_load_policy=3&theme=light';
+    function getEmbedURL(videoID) {
+
+        function toKeyValPairs(key) {
+            return key + '=' + YTP_PARAMS[key];
+        }
+
+        function toQueryString(memo, i) {
+            return memo + i + '&';
+        }
+
+        var queryString = _.chain(YTP_PARAMS).keys().map(toKeyValPairs).reduce(toQueryString, '').value();
+
+        return 'http://www.youtube.com/v/' + videoID + '?' + queryString;
+
     }
 
     return Backbone.View.extend({
@@ -150,7 +174,7 @@ define([
 
             var params = { allowScriptAccess: 'always' };
             var atts = { id: 'myytplayer' };
-            var embedURL = EMBED_URL(this.model.get('videoID'));
+            var embedURL = getEmbedURL(this.model.get('videoID'));
             var width = this.width + '';
             var height = this.height + '';
             var version = '8';
