@@ -26,13 +26,13 @@ require([
                 var timeline = new Timeline();
 
                 var gpxTrack = new GPXTrack({
-                    offset: -59 //+ 13
+                    offset: -59 - 6 //+ 13
                 });
                 gpxTrack.parseGPX(payload);
                 timeline.add(gpxTrack);
 
                 var ytTrack = new YouTubeTrack({
-                    offset: -14 //+ 13
+                    offset: -14 - 6 //+ 13
                 });
                 ytTrack.parseVideoID('http://www.youtube.com/watch?v=4UynmT8bpx0');
                 timeline.add(ytTrack);
@@ -52,7 +52,7 @@ require([
                 var orchestrator = new Orchestrator(timeline);
                 orchestrator.addView(gpxView);
                 orchestrator.addView(ytView);
-                orchestrator.syncAtGlobalSeconds(100, function() {
+                orchestrator.syncAtGlobalSeconds(0, function() {
                     log('orchestrator sync ready-callback');
                     orchestrator.play();
                 });

@@ -9,7 +9,7 @@ define([
     "use strict";
 
     var VERBOSE = false;
-    var UPDATE_INTERVAL = 300;
+    var UPDATE_INTERVAL = 1000;
 
     var GPX_LATITUDE  = 0;
     var GPX_LONGITUDE = 1;
@@ -26,7 +26,7 @@ define([
 
             log('sync(', atPrivateSeconds, ')');
 
-            this.syncInternal(this.findFrameBySeconds(atPrivateSeconds));
+            this.internalSyncToFrame(this.findFrameBySeconds(atPrivateSeconds));
 
             _.defer(ready);
 
@@ -34,9 +34,9 @@ define([
 
         },
 
-        syncInternal: function(atFrame) {
+        internalSyncToFrame: function(atFrame) {
 
-            if (VERBOSE) log('syncInternal(', atFrame, ')');
+            if (VERBOSE) log('internalSyncToFrame(', atFrame, ')');
 
             var points = this.model.get('points');
             var baseTimestamp = points[0][GPX_TIMESTAMP];
@@ -140,15 +140,22 @@ define([
             var playbackStartedPrivate = this.currentPrivateSeconds;
             var playbackStartedWall = moment().unix();
 
-            this.interval = window.setInterval(_.bind(update, this), UPDATE_INTERVAL);
+            this.interval = window.setInterval(_.bind(updateGoogleMapsLocation, this), UPDATE_INTERVAL);
 
-            function update() {
+            function updateGoogleMapsLocation() {
 
                 var playbackElapsed = moment().unix() - playbackStartedWall;
 
                 this.currentPrivateSeconds = playbackStartedPrivate + playbackElapsed;
 
                 var nextFrame = this.findFrameBySeconds(this.currentPrivateSeconds, this.currentFrame);
+
+                if (VERBOSE) log.hash({
+                    playbackElapsed: playbackElapsed,
+                    currentPrivateSeconds: this.currentPrivateSeconds,
+                    currentFrame: this.currentFrame,
+                    nextFrame: nextFrame
+                });
 
                 if (nextFrame === false)
                     { debugger; } // TODO: Add error handling
@@ -199,7 +206,7 @@ define([
             var pathCoordinates = [];
             var mapOptions = {
                 center: initCoordinates,
-                zoom: 17,
+                zoom: 16,
                 mapTypeId: google.maps.MapTypeId.ROADMAP
             };
 
@@ -228,7 +235,7 @@ define([
 
                 var frame = that.findFrameByCoordinates(event.latLng);
 
-                that.syncInternal(frame);
+                that.internalSyncToFrame(frame);
                 that.orchestrator.sync(that.currentPrivateSeconds, function() {
                     // TODO: Make this dependent on the original play/pause state of this view:
                     that.orchestrator.play();
