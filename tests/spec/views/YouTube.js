@@ -32,6 +32,7 @@ define([
             ytp.playVideo = jasmine.createSpy('playVideo');
             ytp.pauseVideo = jasmine.createSpy('pauseVideo');
             ytp.seekTo = jasmine.createSpy('seekTo');
+            ytp.mute = jasmine.createSpy('mute');
         }
 
         it('reports the player as started (even under these hacks)', function() {

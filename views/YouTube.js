@@ -54,6 +54,8 @@ define([
 
         stateChangeListeners: [],
 
+        expectedEvents: 0,
+
         width: 425,
 
         height: 356,
@@ -98,6 +100,7 @@ define([
 
                     if (VERBOSE) log('YTP in PLAY state -> pause until told to play() again');
 
+                    that.expectedEvents++;
                     that.ytp.pauseVideo();
 
                     _.defer(ready);
@@ -134,11 +137,13 @@ define([
                 that.ytp.addEventListener('onStateChange', 'onYTPStateChange');
                 that.ytp.addEventListener('onError', 'onYTPError');
 
-                that.ytp.mute();
+                that.expectedEvents++; // for the upcoming UNSTARTED event
 
                 that.onNextStateChange(that.STATE.PLAYING, function() {
 
                     that.playerStarted = true; // after autostart has actually started playing the video...
+                    that.expectedEvents++;
+                    that.ytp.mute();
                     that.ytp.pauseVideo(); // ...pause it, and wait for further commands
 
                     if (VERBOSE) log('YTP is now ready and paused');
@@ -149,7 +154,12 @@ define([
 
             window.onYTPStateChange = function(newState) {
 
-                if (VERBOSE) log('onYTPStateChange(', newState, '==', that.getReadableState(newState), ')');
+                if (VERBOSE) log('onYTPStateChange(', newState, '==', that.getReadableState(newState), ') // expectedEvents ==', that.expectedEvents);
+
+                if (!that.expectedEvents)
+                    return that.onUserEvent(newState);
+
+                that.expectedEvents--; // one less thing to look forward to
 
                 function byMatchingListeners(listener) {
                     return listener[0] === newState;
@@ -191,7 +201,14 @@ define([
 
         onNextStateChange: function(matchState, callback) {
 
+            this.expectedEvents++;
             this.stateChangeListeners.push([ matchState, callback ]);
+
+        },
+
+        onUserEvent: function(newState) {
+
+            if (VERBOSE) log('onUserEvent(', newState, '==', this.getReadableState(newState), ')');
 
         },
 
@@ -199,6 +216,7 @@ define([
 
             log('play()');
 
+            this.expectedEvents++;
             this.ytp.playVideo();
 
         },
@@ -207,6 +225,7 @@ define([
 
             log('pause()');
 
+            this.expectedEvents++;
             this.ytp.pauseVideo();
 
         }
