@@ -57,11 +57,11 @@ define([
 
         };
 
-        my.play = function() {
+        my.play = function(ignoreView) {
 
             log('play()');
 
-            _.each(views, function(view) {
+            _.chain(views).without(ignoreView).each(function(view) {
                 view.play();
             });
 
@@ -69,11 +69,11 @@ define([
 
         };
 
-        my.pause = function() {
+        my.pause = function(ignoreView) {
 
             log('pause()');
 
-            _.each(views, function(view) {
+            _.chain(views).without(ignoreView).each(function(view) {
                 view.pause();
             });
 

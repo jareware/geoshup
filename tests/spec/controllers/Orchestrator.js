@@ -14,7 +14,9 @@ define([
                 model: new Backbone.Model({
                     offset: offset
                 }),
-                sync: jasmine.createSpy('viewSpy')
+                sync: jasmine.createSpy('viewSpy'),
+                play: jasmine.createSpy('play'),
+                pause: jasmine.createSpy('pause')
             };
         }
 
@@ -35,7 +37,7 @@ define([
 
         });
 
-        it('delegates sync commands to contained views', function() {
+        it('delegates sync commands to managed views', function() {
 
             var a = getViewSpy(0);
             var b = getViewSpy(-3);
@@ -98,6 +100,44 @@ define([
 
             expect(readySpy).toHaveBeenCalled();
             expect(readySpy.callCount).toBe(1);
+
+        });
+
+        it('delegates play/pause commands to managed views', function() {
+
+            var a = getViewSpy(0);
+            var b = getViewSpy(-3);
+            var c = getViewSpy(5);
+            var t = new Timeline([ a.model, b.model, c.model ]);
+            var o = new Orchestrator(t);
+
+            o.addView(a);
+            o.addView(b);
+            o.addView(c);
+
+            o.play(b);
+
+            expect(a.play.callCount).toBe(1);
+            expect(b.play).not.toHaveBeenCalled();
+            expect(c.play.callCount).toBe(1);
+
+            o.pause(a);
+
+            expect(a.pause).not.toHaveBeenCalled();
+            expect(b.pause.callCount).toBe(1);
+            expect(c.pause.callCount).toBe(1);
+
+            o.play();
+
+            expect(a.play.callCount).toBe(2);
+            expect(b.play.callCount).toBe(1);
+            expect(c.play.callCount).toBe(2);
+
+            o.pause();
+
+            expect(a.pause.callCount).toBe(1);
+            expect(b.pause.callCount).toBe(2);
+            expect(c.pause.callCount).toBe(2);
 
         });
 
