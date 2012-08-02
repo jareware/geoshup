@@ -12,16 +12,47 @@ define([
         var my = this;
         var views = [];
 
+        /**
+         * Starts managing the given view, meaning being able to delegate commands to it.  Ignores duplicate calls.
+         *
+         * Returns the updated number of managed views.
+         *
+         * @param view
+         */
         my.addView = function(view) {
 
-            if (_.indexOf(views, view) === -1)
-                views.push(view);
+            if (_.indexOf(views, view) !== -1)
+                return views.length;
+
+            view.orchestrator = {
+                sync: function(atPrivateSeconds) {
+//                    my.syncAtPrivateSeconds(...) // TODO
+                },
+                play: function() {
+                    my.play(view);
+                },
+                pause: function() {
+                    my.pause(view);
+                }
+            };
+
+            views.push(view);
 
             return views.length;
 
         };
 
+        /**
+         * Stops managing the given view.
+         *
+         * Returns the updated number of managed views.
+         *
+         * @param view
+         */
         my.removeView = function(view) {
+
+            if (_.indexOf(views, view) !== -1)
+                view.orchestrator = undefined;
 
             views = _.reject(views, function(current) {
                 return current === view;
@@ -31,7 +62,7 @@ define([
 
         };
 
-        my.syncAtGlobalSeconds = function(globalSeconds, ready) {
+        my.syncAtGlobalSeconds = function(globalSeconds, ready) { // TODO: These could actually be hidden from the public interface of the Orchestrator
 
             log('syncAtGlobalSeconds(', globalSeconds, ')');
 
@@ -47,7 +78,7 @@ define([
 
         };
 
-        my.syncAtPrivateSeconds = function(privateSeconds, povTrack, ready) {
+        my.syncAtPrivateSeconds = function(privateSeconds, povTrack, ready) { // TODO: These could actually be hidden from the public interface of the Orchestrator
 
             log('syncAtPrivateSeconds(', privateSeconds, ',', povTrack, ')');
 

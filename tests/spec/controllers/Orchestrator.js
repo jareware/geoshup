@@ -30,10 +30,15 @@ define([
             expect(o.addView(a)).toBe(1);
             expect(o.addView(a)).toBe(1);
             expect(o.addView(b)).toBe(2);
+
+            expect(a.orchestrator).not.toBe(undefined);
+
             expect(o.removeView(c)).toBe(2);
             expect(o.removeView(b)).toBe(1);
             expect(o.removeView(b)).toBe(1);
             expect(o.removeView(a)).toBe(0);
+
+            expect(a.orchestrator).toBe(undefined);
 
         });
 
@@ -115,25 +120,25 @@ define([
             o.addView(b);
             o.addView(c);
 
-            o.play(b);
+            b.orchestrator.play(); // command from a View
 
             expect(a.play.callCount).toBe(1);
             expect(b.play).not.toHaveBeenCalled();
             expect(c.play.callCount).toBe(1);
 
-            o.pause(a);
+            a.orchestrator.pause(); // command from a View
 
             expect(a.pause).not.toHaveBeenCalled();
             expect(b.pause.callCount).toBe(1);
             expect(c.pause.callCount).toBe(1);
 
-            o.play();
+            o.play(); // command externally
 
             expect(a.play.callCount).toBe(2);
             expect(b.play.callCount).toBe(1);
             expect(c.play.callCount).toBe(2);
 
-            o.pause();
+            o.pause(); // command externally
 
             expect(a.pause.callCount).toBe(1);
             expect(b.pause.callCount).toBe(2);
