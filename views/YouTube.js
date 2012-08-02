@@ -134,6 +134,8 @@ define([
                 that.ytp.addEventListener('onStateChange', 'onYTPStateChange');
                 that.ytp.addEventListener('onError', 'onYTPError');
 
+                that.ytp.mute();
+
                 that.onNextStateChange(that.STATE.PLAYING, function() {
 
                     that.playerStarted = true; // after autostart has actually started playing the video...
