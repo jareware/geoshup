@@ -179,13 +179,13 @@ define([
             spyOnControls(view.ytp);
             window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
 
-           waitsFor(function() {
+            waitsFor(function() {
                return view.ytp.seekTo.callCount > 0; // this means seek has been ordered -> YTP is now listening for the subsequent PLAY state
-           });
+            });
 
-           runs(function() {
+            runs(function() {
                window.onYTPStateChange(view.STATE.PLAYING); // this means the player has buffered after the seek, and is ready -> it'll be paused while it waits for further instructions
-           });
+            });
 
             waitsFor(function() {
                 return readySpy.callCount > 0;
