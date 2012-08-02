@@ -52,6 +52,8 @@ define([
             CUED:       5 // When the video is cued and ready to play it will broadcast a video cued event (5)
         },
 
+        label: log.label, // this is just sugar for debugging/logging
+
         stateChangeListeners: [],
 
         expectedEvents: 0,

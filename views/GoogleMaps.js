@@ -19,6 +19,8 @@ define([
 
     return Backbone.View.extend({
 
+        label: log.label, // this is just sugar for debugging/logging
+
         sync: function(atPrivateSeconds, ready) {
 
             log('sync(', atPrivateSeconds, ')');

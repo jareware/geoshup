@@ -7,6 +7,10 @@ define([
 
     var log = logger.create('controllers/Orchestrator');
 
+    function getViewLabel(view) {
+        return view && view.label ? view.label : '';
+    }
+
     return function(timeline) {
 
         var my = this;
@@ -90,25 +94,25 @@ define([
 
         my.play = function(ignoreView) {
 
-            log('play()');
+            log('play(', getViewLabel(ignoreView), ')');
 
             _.chain(views).without(ignoreView).each(function(view) {
                 view.play();
             });
 
-            log('play() -> delegated');
+            log('play(', getViewLabel(ignoreView), ') -> delegated');
 
         };
 
         my.pause = function(ignoreView) {
 
-            log('pause()');
+            log('pause(', getViewLabel(ignoreView), ')');
 
             _.chain(views).without(ignoreView).each(function(view) {
                 view.pause();
             });
 
-            log('pause() -> delegated');
+            log('pause(', getViewLabel(ignoreView), ') -> delegated');
 
         };
 
