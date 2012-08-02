@@ -27,39 +27,39 @@ define([
 
             // 0  1  2  3  4  5  6  7  8 <- elapsed seconds
             [  0, 0, 1, 2, 2, 2, 2, 3, 4 ].forEach(function(expectedFrameIndex, atPrivateSeconds) {
-                expect(view.findFrame(atPrivateSeconds)).toBe(expectedFrameIndex);
+                expect(view.findFrameBySeconds(atPrivateSeconds)).toBe(expectedFrameIndex);
             });
 
         });
 
         it('handles frame lookups outside the valid range', function() {
 
-            expect(view.findFrame(-1)).toBe(false);
-            expect(view.findFrame(-9001)).toBe(false);
+            expect(view.findFrameBySeconds(-1)).toBe(false);
+            expect(view.findFrameBySeconds(-9001)).toBe(false);
 
-            expect(view.findFrame(9)).toBe(false);
-            expect(view.findFrame(1337)).toBe(false);
+            expect(view.findFrameBySeconds(9)).toBe(false);
+            expect(view.findFrameBySeconds(1337)).toBe(false);
 
         });
 
         it('looks up frames using a reference frame', function() {
 
-            expect(view.findFrame(7, 2)).toBe(3); // TODO: Check that the previous indices really weren't tested..?
-            expect(view.findFrame(4, 2)).toBe(2); // starting to look while frame active
-            expect(view.findFrame(5, 3)).toBe(false); // starting to look after frame already passed
-            expect(view.findFrame(7, 3)).toBe(3); // immediate match
+            expect(view.findFrameBySeconds(7, 2)).toBe(3); // TODO: Check that the previous indices really weren't tested..?
+            expect(view.findFrameBySeconds(4, 2)).toBe(2); // starting to look while frame active
+            expect(view.findFrameBySeconds(5, 3)).toBe(false); // starting to look after frame already passed
+            expect(view.findFrameBySeconds(7, 3)).toBe(3); // immediate match
 
-            expect(view.findFrame(0, 0)).toBe(0); // default 0 should be OK to specify, too
-            expect(view.findFrame(1, 0)).toBe(0);
-            expect(view.findFrame(2, 0)).toBe(1);
+            expect(view.findFrameBySeconds(0, 0)).toBe(0); // default 0 should be OK to specify, too
+            expect(view.findFrameBySeconds(1, 0)).toBe(0);
+            expect(view.findFrameBySeconds(2, 0)).toBe(1);
 
         });
 
         it('tolerates non-sane reference frames', function() {
 
-            expect(view.findFrame(0, -1)).toBe(false);
-            expect(view.findFrame(0, 20)).toBe(false);
-            expect(view.findFrame(20, 20)).toBe(false);
+            expect(view.findFrameBySeconds(0, -1)).toBe(false);
+            expect(view.findFrameBySeconds(0, 20)).toBe(false);
+            expect(view.findFrameBySeconds(20, 20)).toBe(false);
 
         });
 
@@ -67,9 +67,9 @@ define([
 
             track.set({ points: [] });
 
-            expect(view.findFrame(-1)).toBe(false);
-            expect(view.findFrame(0)).toBe(false);
-            expect(view.findFrame(1)).toBe(false);
+            expect(view.findFrameBySeconds(-1)).toBe(false);
+            expect(view.findFrameBySeconds(0)).toBe(false);
+            expect(view.findFrameBySeconds(1)).toBe(false);
 
         });
 

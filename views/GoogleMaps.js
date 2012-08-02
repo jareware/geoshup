@@ -25,7 +25,7 @@ define([
 
             log('sync(', atPrivateSeconds, ')');
 
-            var matchingFrame = this.findFrame(atPrivateSeconds);
+            var matchingFrame = this.findFrameBySeconds(atPrivateSeconds);
 
             this.internalPause();
             this.currentPrivateSeconds = atPrivateSeconds;
@@ -47,7 +47,7 @@ define([
          * @param atPrivateSeconds
          * @param referenceFrame (optional)
          */
-        findFrame: function(atPrivateSeconds, referenceFrame) {
+        findFrameBySeconds: function(atPrivateSeconds, referenceFrame) {
 
             if (atPrivateSeconds < 0)
                 return false;
@@ -100,7 +100,7 @@ define([
 
                 this.currentPrivateSeconds = playbackStartedPrivate + playbackElapsed;
 
-                var nextFrame = this.findFrame(this.currentPrivateSeconds, this.currentFrame);
+                var nextFrame = this.findFrameBySeconds(this.currentPrivateSeconds, this.currentFrame);
 
                 if (nextFrame === false)
                     { debugger; } // TODO: Add error handling
