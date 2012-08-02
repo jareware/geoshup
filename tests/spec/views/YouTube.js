@@ -40,7 +40,7 @@ define([
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
-            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
 
             expect(view.playerStarted).toBeTruthy();
 
@@ -52,7 +52,7 @@ define([
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
-            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
 
             expect(view.ytp.playVideo).not.toHaveBeenCalled();
             expect(view.ytp.pauseVideo).toHaveBeenCalled();
@@ -66,7 +66,7 @@ define([
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
-            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
 
             expect(view.ytp.playVideo).not.toHaveBeenCalled();
             expect(view.ytp.pauseVideo).toHaveBeenCalled();
@@ -74,10 +74,15 @@ define([
 
             view.sync(123, function() {});
 
-            expect(view.ytp.playVideo).not.toHaveBeenCalled();
-            expect(view.ytp.pauseVideo.callCount).toBe(2);
+            expect(view.ytp.playVideo.callCount).toBe(1);
+            expect(view.ytp.pauseVideo.callCount).toBe(1);
             expect(view.ytp.seekTo).toHaveBeenCalledWith(123, true);
             expect(view.ytp.seekTo.callCount).toBe(1);
+
+            window.onYTPStateChange(view.STATE.PLAYING); // help trigger the ready() call
+
+            expect(view.ytp.playVideo.callCount).toBe(1);
+            expect(view.ytp.pauseVideo.callCount).toBe(2);
 
         });
 
@@ -87,15 +92,22 @@ define([
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
-            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
 
             waitsFor(function() {
-                return view.ytp.seekTo.callCount > 0;
+                return view.ytp.seekTo.callCount > 0; // this means seek has been ordered -> YTP is now listening for the subsequent PLAY state
             });
 
             runs(function() {
-                expect(view.ytp.playVideo).not.toHaveBeenCalled();
-                expect(view.ytp.pauseVideo.callCount).toBe(2);
+                window.onYTPStateChange(view.STATE.PLAYING); // this means the player has buffered after the seek, and is ready -> it'll be paused while it waits for further instructions
+            });
+
+            waitsFor(function() {
+                return view.ytp.pauseVideo.callCount === 2;
+            });
+
+            runs(function() {
+                expect(view.ytp.playVideo.callCount).toBe(1);
                 expect(view.ytp.seekTo).toHaveBeenCalledWith(123, true);
                 expect(view.ytp.seekTo.callCount).toBe(1);
             });
@@ -164,7 +176,15 @@ define([
 
             window.onYouTubePlayerReady('playerID');
             spyOnControls(view.ytp);
-            window.onYTPStateChange(view.STATE.PLAYING);
+            window.onYTPStateChange(view.STATE.PLAYING); // this means the player is ready and thus started playback
+
+           waitsFor(function() {
+               return view.ytp.seekTo.callCount > 0; // this means seek has been ordered -> YTP is now listening for the subsequent PLAY state
+           });
+
+           runs(function() {
+               window.onYTPStateChange(view.STATE.PLAYING); // this means the player has buffered after the seek, and is ready -> it'll be paused while it waits for further instructions
+           });
 
             waitsFor(function() {
                 return readySpy.callCount > 0;
